@@ -1,99 +1,48 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions, Text, TouchableOpacity, ScrollView, Animated } from 'react-native';
-import Svg, { Path, Circle, Ellipse, G, Rect, Defs, RadialGradient, Stop } from 'react-native-svg';
+import React from 'react';
+import { View, StyleSheet, Dimensions, TouchableOpacity, Text } from 'react-native';
+import Svg, { Path, Circle, Ellipse, Rect, Defs, RadialGradient, Stop } from 'react-native-svg';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const InteractiveBodySVG = ({ onBodyPartPress }) => {
-  const [selectedPart, setSelectedPart] = useState(null);
+  const svgWidth = width * 0.85;
+  const svgHeight = svgWidth * 1.8;
   
-  // Animation values
-  const brainPulse = useRef(new Animated.Value(1)).current;
-  const hairPulse = useRef(new Animated.Value(1)).current;
-  const stomachPulse = useRef(new Animated.Value(1)).current;
-  const bicepPulse = useRef(new Animated.Value(1)).current;
-  const heartBeat = useRef(new Animated.Value(1)).current;
-  const skinGlow = useRef(new Animated.Value(0.3)).current;
-  const pelvicGlow = useRef(new Animated.Value(0.3)).current;
-
-  useEffect(() => {
-    // Brain popping animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(brainPulse, { toValue: 1.15, duration: 400, useNativeDriver: true }),
-        Animated.timing(brainPulse, { toValue: 1, duration: 400, useNativeDriver: true }),
-        Animated.delay(800),
-      ])
-    ).start();
-
-    // Hair popping animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(hairPulse, { toValue: 1.1, duration: 500, useNativeDriver: true }),
-        Animated.timing(hairPulse, { toValue: 1, duration: 500, useNativeDriver: true }),
-        Animated.delay(1000),
-      ])
-    ).start();
-
-    // Stomach popping animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(stomachPulse, { toValue: 1.12, duration: 600, useNativeDriver: true }),
-        Animated.timing(stomachPulse, { toValue: 1, duration: 600, useNativeDriver: true }),
-      ])
-    ).start();
-
-    // Bicep flexing animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(bicepPulse, { toValue: 1.08, duration: 700, useNativeDriver: true }),
-        Animated.timing(bicepPulse, { toValue: 1, duration: 700, useNativeDriver: true }),
-      ])
-    ).start();
-
-    // Heart beating animation
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(heartBeat, { toValue: 1.2, duration: 300, useNativeDriver: true }),
-        Animated.timing(heartBeat, { toValue: 1, duration: 300, useNativeDriver: true }),
-        Animated.timing(heartBeat, { toValue: 1.15, duration: 300, useNativeDriver: true }),
-        Animated.timing(heartBeat, { toValue: 1, duration: 300, useNativeDriver: true }),
-        Animated.delay(500),
-      ])
-    ).start();
-
-    // Skin glowing pulse (center chest)
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(skinGlow, { toValue: 1, duration: 1500, useNativeDriver: true }),
-        Animated.timing(skinGlow, { toValue: 0.3, duration: 1500, useNativeDriver: true }),
-      ])
-    ).start();
-
-    // Pelvic area glow
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pelvicGlow, { toValue: 1, duration: 2000, useNativeDriver: true }),
-        Animated.timing(pelvicGlow, { toValue: 0.3, duration: 2000, useNativeDriver: true }),
-      ])
-    ).start();
-  }, []);
+  // Scale factor to position touch areas
+  const scaleX = svgWidth / 300;
+  const scaleY = svgHeight / 540;
 
   const handlePress = (part) => {
-    setSelectedPart(part);
     if (onBodyPartPress) {
       onBodyPartPress(part);
     }
   };
 
-  const getPartColor = (part) => {
-    return selectedPart === part ? '#e74c3c' : '#3498db';
-  };
+  // Touch area component
+  const TouchArea = ({ part, top, left, width, height, label, color = '#1abc9c' }) => (
+    <TouchableOpacity
+      style={[
+        styles.touchArea,
+        {
+          top: top * scaleY,
+          left: left * scaleX,
+          width: width * scaleX,
+          height: height * scaleY,
+          backgroundColor: `${color}40`,
+          borderColor: color,
+        }
+      ]}
+      onPress={() => handlePress(part)}
+      activeOpacity={0.7}
+    >
+      <Text style={[styles.touchLabel, { color }]}>{label}</Text>
+    </TouchableOpacity>
+  );
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.svgContainer}>
-        <Svg width={width * 0.9} height={height * 0.8} viewBox="0 0 300 600">
+    <View style={styles.container}>
+      <View style={[styles.svgContainer, { width: svgWidth, height: svgHeight }]}>
+        <Svg width={svgWidth} height={svgHeight} viewBox="0 0 300 540">
           <Defs>
             <RadialGradient id="skinGlow" cx="50%" cy="50%">
               <Stop offset="0%" stopColor="#FFD700" stopOpacity="0.8" />
@@ -105,250 +54,174 @@ const InteractiveBodySVG = ({ onBodyPartPress }) => {
             </RadialGradient>
           </Defs>
 
-          {/* Hair - Interactive with animation */}
-          <G onPress={() => handlePress('hair')}>
-            <Animated.View style={{ transform: [{ scale: hairPulse }] }}>
-              <Path
-                d="M 150 20 Q 100 10, 80 40 Q 70 60, 75 80 Q 80 60, 90 50 Q 100 40, 110 45 Q 120 30, 130 25 Q 140 20, 150 20 Z"
-                fill={getPartColor('hair')}
-                stroke="#8B4513"
-                strokeWidth="2"
-              />
-              <Path
-                d="M 150 20 Q 200 10, 220 40 Q 230 60, 225 80 Q 220 60, 210 50 Q 200 40, 190 45 Q 180 30, 170 25 Q 160 20, 150 20 Z"
-                fill={getPartColor('hair')}
-                stroke="#8B4513"
-                strokeWidth="2"
-              />
-            </Animated.View>
-          </G>
+          {/* Hair */}
+          <Path
+            d="M 150 25 Q 100 15, 85 45 Q 75 65, 80 85 Q 85 65, 95 55 Q 105 45, 115 50 Q 125 35, 135 30 Q 145 25, 150 25 Z"
+            fill="#8B4513"
+            stroke="#5D3A1A"
+            strokeWidth="2"
+          />
+          <Path
+            d="M 150 25 Q 200 15, 215 45 Q 225 65, 220 85 Q 215 65, 205 55 Q 195 45, 185 50 Q 175 35, 165 30 Q 155 25, 150 25 Z"
+            fill="#8B4513"
+            stroke="#5D3A1A"
+            strokeWidth="2"
+          />
 
           {/* Head */}
           <Ellipse
             cx="150"
-            cy="100"
-            rx="50"
+            cy="95"
+            rx="55"
             ry="60"
-            fill="#f39c12"
-            stroke="#2c3e50"
+            fill="#FDBF6F"
+            stroke="#E8A850"
             strokeWidth="2"
           />
 
-          {/* Brain - Interactive with pop animation */}
-          <G onPress={() => handlePress('brain')}>
-            <Animated.View style={{ transform: [{ scale: brainPulse }] }}>
-              <Path
-                d="M 130 70 Q 125 65, 130 60 Q 135 55, 140 60 Q 145 55, 150 60 Q 155 55, 160 60 Q 165 55, 170 60 Q 175 65, 170 70 Q 165 75, 160 70 Q 155 75, 150 70 Q 145 75, 140 70 Q 135 75, 130 70 Z"
-                fill={getPartColor('brain')}
-                stroke="#c0392b"
-                strokeWidth="1.5"
-              />
-              <Circle cx="142" cy="65" r="1.5" fill="#ff1744" />
-              <Circle cx="158" cy="65" r="1.5" fill="#ff1744" />
-              <Path
-                d="M 135 67 Q 140 65, 145 67 M 155 67 Q 160 65, 165 67"
-                fill="none"
-                stroke="#c0392b"
-                strokeWidth="1"
-              />
-            </Animated.View>
-          </G>
+          {/* Brain indicator */}
+          <Circle cx="150" cy="55" r="18" fill="#E74C3C" opacity="0.8" />
 
           {/* Eyes */}
-          <Circle cx="135" cy="95" r="5" fill="#2c3e50" />
-          <Circle cx="165" cy="95" r="5" fill="#2c3e50" />
-          <Circle cx="136" cy="93" r="2" fill="#fff" />
-          <Circle cx="166" cy="93" r="2" fill="#fff" />
+          <Circle cx="130" cy="90" r="8" fill="#fff" />
+          <Circle cx="170" cy="90" r="8" fill="#fff" />
+          <Circle cx="130" cy="90" r="4" fill="#2c3e50" />
+          <Circle cx="170" cy="90" r="4" fill="#2c3e50" />
 
           {/* Mouth */}
           <Path
-            d="M 135 115 Q 150 120, 165 115"
+            d="M 135 115 Q 150 125, 165 115"
             fill="none"
-            stroke="#2c3e50"
+            stroke="#c0392b"
             strokeWidth="2"
           />
 
           {/* Neck */}
-          <Rect
-            x="135"
-            y="155"
-            width="30"
-            height="25"
-            fill="#f39c12"
-            stroke="#2c3e50"
-            strokeWidth="2"
-          />
+          <Rect x="130" y="150" width="40" height="30" fill="#FDBF6F" stroke="#E8A850" strokeWidth="2" />
 
-          {/* Torso Base */}
+          {/* Torso */}
           <Path
-            d="M 100 180 L 200 180 L 190 340 L 110 340 Z"
-            fill="#e8e8e8"
-            stroke="#2c3e50"
+            d="M 90 180 L 210 180 L 200 340 L 100 340 Z"
+            fill="#3498db"
+            stroke="#2980b9"
             strokeWidth="2"
           />
 
-          {/* Skin Glow (Center Chest) - Interactive */}
-          <G onPress={() => handlePress('skin')}>
-            <Animated.View style={{ opacity: skinGlow }}>
-              <Circle
-                cx="150"
-                cy="220"
-                r="25"
-                fill="url(#skinGlow)"
-              />
-            </Animated.View>
-            <Circle
-              cx="150"
-              cy="220"
-              r="12"
-              fill="#FFD700"
-              opacity="0.6"
-              stroke="#FFB300"
-              strokeWidth="2"
-            />
-          </G>
+          {/* Heart indicator */}
+          <Circle cx="130" cy="210" r="15" fill="#E74C3C" opacity="0.9" />
+          
+          {/* Skin/Chest indicator */}
+          <Circle cx="150" cy="230" r="20" fill="#FFD700" opacity="0.6" />
 
-          {/* Heart - Interactive with beat animation */}
-          <G onPress={() => handlePress('heart')}>
-            <Animated.View style={{ transform: [{ scale: heartBeat }] }}>
-              <Path
-                d="M 125 210 Q 120 205, 120 200 Q 120 195, 125 195 Q 130 195, 133 200 Q 136 195, 141 195 Q 146 195, 146 200 Q 146 205, 141 210 Q 133 218, 125 210 Z"
-                fill={getPartColor('heart')}
-                stroke="#c0392b"
-                strokeWidth="1.5"
-              />
-            </Animated.View>
-          </G>
+          {/* Stomach indicator */}
+          <Ellipse cx="150" cy="280" rx="25" ry="30" fill="#27ae60" opacity="0.7" />
 
-          {/* Stomach - Interactive with pop animation */}
-          <G onPress={() => handlePress('stomach')}>
-            <Animated.View style={{ transform: [{ scale: stomachPulse }] }}>
-              <Ellipse
-                cx="150"
-                cy="270"
-                rx="22"
-                ry="28"
-                fill={getPartColor('stomach')}
-                stroke="#2c3e50"
-                strokeWidth="2"
-                opacity="0.8"
-              />
-            </Animated.View>
-          </G>
+          {/* Sexual Health indicator */}
+          <Circle cx="150" cy="330" r="15" fill="#FF69B4" opacity="0.8" />
 
-          {/* Sexual Health Glow (Pelvic Area) - Interactive */}
-          <G onPress={() => handlePress('sexual')}>
-            <Animated.View style={{ opacity: pelvicGlow }}>
-              <Circle
-                cx="150"
-                cy="320"
-                r="20"
-                fill="url(#pelvicGlow)"
-              />
-            </Animated.View>
-            <Circle
-              cx="150"
-              cy="320"
-              r="8"
-              fill="#FF69B4"
-              opacity="0.5"
-              stroke="#FF1493"
-              strokeWidth="1.5"
-            />
-          </G>
-
-          {/* Left Bicep (Muscle) - Interactive with flex animation */}
-          <G onPress={() => handlePress('muscle')}>
-            <Animated.View style={{ transform: [{ scale: bicepPulse }] }}>
-              <Ellipse
-                cx="85"
-                cy="220"
-                rx="18"
-                ry="25"
-                fill={getPartColor('muscle')}
-                stroke="#2c3e50"
-                strokeWidth="2"
-              />
-            </Animated.View>
-            {/* Left Arm */}
-            <Rect
-              x="70"
-              y="195"
-              width="30"
-              height="100"
-              fill="#d4a574"
-              stroke="#2c3e50"
-              strokeWidth="2"
-            />
-            <Circle cx="85" cy="305" r="15" fill="#f39c12" stroke="#2c3e50" strokeWidth="2" />
-          </G>
+          {/* Left Arm */}
+          <Rect x="55" y="185" width="35" height="110" rx="10" fill="#FDBF6F" stroke="#E8A850" strokeWidth="2" />
+          {/* Muscle indicator */}
+          <Ellipse cx="72" cy="220" rx="15" ry="20" fill="#9b59b6" opacity="0.8" />
+          {/* Left Hand */}
+          <Circle cx="72" cy="305" r="18" fill="#FDBF6F" stroke="#E8A850" strokeWidth="2" />
 
           {/* Right Arm */}
-          <G>
-            <Rect
-              x="200"
-              y="195"
-              width="30"
-              height="100"
-              fill="#d4a574"
-              stroke="#2c3e50"
-              strokeWidth="2"
-            />
-            <Circle cx="215" cy="305" r="15" fill="#f39c12" stroke="#2c3e50" strokeWidth="2" />
-          </G>
+          <Rect x="210" y="185" width="35" height="110" rx="10" fill="#FDBF6F" stroke="#E8A850" strokeWidth="2" />
+          {/* Right Hand */}
+          <Circle cx="228" cy="305" r="18" fill="#FDBF6F" stroke="#E8A850" strokeWidth="2" />
 
           {/* Legs */}
-          <Rect
-            x="120"
-            y="340"
-            width="25"
-            height="110"
-            fill="#5882a8"
-            stroke="#2c3e50"
-            strokeWidth="2"
-          />
-          <Rect
-            x="155"
-            y="340"
-            width="25"
-            height="110"
-            fill="#5882a8"
-            stroke="#2c3e50"
-            strokeWidth="2"
-          />
-          <Ellipse
-            cx="132.5"
-            cy="460"
-            rx="18"
-            ry="10"
-            fill="#2c3e50"
-            stroke="#2c3e50"
-            strokeWidth="2"
-          />
-          <Ellipse
-            cx="167.5"
-            cy="460"
-            rx="18"
-            ry="10"
-            fill="#2c3e50"
-            stroke="#2c3e50"
-            strokeWidth="2"
-          />
+          <Rect x="110" y="340" width="35" height="140" rx="8" fill="#34495e" stroke="#2c3e50" strokeWidth="2" />
+          <Rect x="155" y="340" width="35" height="140" rx="8" fill="#34495e" stroke="#2c3e50" strokeWidth="2" />
+          
+          {/* Feet */}
+          <Ellipse cx="127" cy="490" rx="22" ry="12" fill="#2c3e50" />
+          <Ellipse cx="173" cy="490" rx="22" ry="12" fill="#2c3e50" />
         </Svg>
 
+        {/* Touch overlay areas */}
+        <TouchArea part="hair" top={15} left={85} width={130} height={50} label="HAIR" color="#8B4513" />
+        <TouchArea part="brain" top={35} left={115} width={70} height={45} label="BRAIN" color="#E74C3C" />
+        <TouchArea part="heart" top={190} left={100} width={50} height={45} label="HEART" color="#E74C3C" />
+        <TouchArea part="skin" top={210} left={125} width={50} height={45} label="SKIN" color="#FFD700" />
+        <TouchArea part="stomach" top={250} left={115} width={70} height={65} label="FAT LOSS" color="#27ae60" />
+        <TouchArea part="sexual" top={315} left={125} width={50} height={35} label="SEXUAL" color="#FF69B4" />
+        <TouchArea part="muscle" top={195} left={50} width={50} height={60} label="MUSCLE" color="#9b59b6" />
       </View>
-    </ScrollView>
+      
+      {/* Legend */}
+      <View style={styles.legend}>
+        <Text style={styles.legendTitle}>Tap any area to browse compounds</Text>
+        <View style={styles.legendRow}>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: '#E74C3C' }]} />
+            <Text style={styles.legendText}>Brain/Heart</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: '#27ae60' }]} />
+            <Text style={styles.legendText}>Fat Loss</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendDot, { backgroundColor: '#9b59b6' }]} />
+            <Text style={styles.legendText}>Muscle</Text>
+          </View>
+        </View>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   svgContainer: {
+    position: 'relative',
+  },
+  touchArea: {
+    position: 'absolute',
+    borderRadius: 8,
+    borderWidth: 2,
     alignItems: 'center',
-    paddingVertical: 20,
+    justifyContent: 'center',
+  },
+  touchLabel: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  legend: {
+    marginTop: 15,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  legendTitle: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 10,
+  },
+  legendRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 15,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  legendDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 5,
+  },
+  legendText: {
+    fontSize: 12,
+    color: '#aaa',
   },
 });
 

@@ -43,7 +43,7 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#a8d4f0" />
+      <StatusBar barStyle="light-content" backgroundColor="#121212" />
       
       {/* Header */}
       <View style={styles.header}>
@@ -60,7 +60,7 @@ const HomeScreen = () => {
       <View style={styles.footer}>
         <TouchableOpacity 
           style={styles.browseButton}
-          onPress={() => navigation.navigate('Shop')}
+          onPress={() => navigation.navigate('Shop', {})}
           activeOpacity={0.8}
         >
           <Text style={styles.browseButtonText}>Browse All Compounds</Text>
@@ -73,7 +73,7 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#a8d4f0',
+    backgroundColor: '#121212',
   },
   header: {
     paddingHorizontal: 20,
@@ -84,12 +84,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#1a1a2e',
+    color: '#fff',
     marginBottom: 5,
   },
   subtitle: {
     fontSize: 14,
-    color: '#4a5568',
+    color: '#888',
   },
   bodyContainer: {
     flex: 1,
@@ -101,11 +101,11 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   browseButton: {
-    backgroundColor: '#2980b9',
+    backgroundColor: '#1abc9c',
     padding: 16,
     borderRadius: 12,
     alignItems: 'center',
-    shadowColor: '#2980b9',
+    shadowColor: '#1abc9c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

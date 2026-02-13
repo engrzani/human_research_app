@@ -46,19 +46,19 @@ function MainTabs() {
           
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: '#2980b9',
-        tabBarInactiveTintColor: '#95a5a6',
+        tabBarActiveTintColor: '#1abc9c',
+        tabBarInactiveTintColor: '#666',
         tabBarStyle: {
-          height: 60,
-          paddingBottom: 8,
+          height: 65,
+          paddingBottom: 10,
           paddingTop: 8,
-          backgroundColor: '#fff',
+          backgroundColor: '#1a1a1a',
           borderTopWidth: 1,
-          borderTopColor: '#ecf0f1',
+          borderTopColor: '#333',
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500',
+          fontSize: 11,
+          fontWeight: '600',
         },
         headerShown: false,
       })}
@@ -103,11 +103,12 @@ export default function App() {
             initialRouteName="Disclaimer"
             screenOptions={{
               headerStyle: {
-                backgroundColor: '#2c3e50',
+                backgroundColor: '#1a1a1a',
               },
-              headerTintColor: '#fff',
+              headerTintColor: '#1abc9c',
               headerTitleStyle: {
                 fontWeight: 'bold',
+                color: '#fff',
               },
             }}
           >

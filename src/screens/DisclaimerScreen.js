@@ -46,12 +46,12 @@ const DisclaimerScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#a8d4f0" />
+      <StatusBar barStyle="light-content" backgroundColor="#121212" />
       
       <View style={styles.content}>
         {/* Shield Icon */}
         <View style={styles.iconContainer}>
-          <Ionicons name="shield-checkmark-outline" size={60} color="#2c3e50" />
+          <Ionicons name="shield-checkmark-outline" size={60} color="#1abc9c" />
         </View>
 
         {/* Title */}
@@ -121,7 +121,7 @@ const DisclaimerScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#a8d4f0',
+    backgroundColor: '#121212',
   },
   content: {
     flex: 1,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(26,188,156,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 30,
@@ -141,19 +141,19 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '700',
-    color: '#1a1a2e',
+    color: '#fff',
     marginBottom: 20,
     textAlign: 'center',
   },
   description: {
     fontSize: 15,
-    color: '#4a4a5a',
+    color: '#aaa',
     textAlign: 'center',
     lineHeight: 22,
     marginBottom: 40,
   },
   link: {
-    color: '#2980b9',
+    color: '#1abc9c',
     textDecorationLine: 'underline',
   },
   checkboxRow: {
@@ -168,37 +168,37 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: '#7f8c8d',
+    borderColor: '#555',
     marginRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#1e1e1e',
   },
   checkboxChecked: {
-    backgroundColor: '#2980b9',
-    borderColor: '#2980b9',
+    backgroundColor: '#1abc9c',
+    borderColor: '#1abc9c',
   },
   checkboxLabel: {
     flex: 1,
     fontSize: 15,
-    color: '#1a1a2e',
+    color: '#ddd',
     lineHeight: 22,
   },
   continueButton: {
     width: '100%',
-    backgroundColor: '#2980b9',
+    backgroundColor: '#1abc9c',
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 40,
-    shadowColor: '#2980b9',
+    shadowColor: '#1abc9c',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
   },
   continueButtonDisabled: {
-    backgroundColor: '#bdc3c7',
+    backgroundColor: '#333',
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   continueButtonTextDisabled: {
-    color: '#95a5a6',
+    color: '#666',
   },
 });
 
