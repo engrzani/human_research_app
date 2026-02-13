@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "312317016332",
+    "project_id": "human-research-app",
+    "storage_bucket": "human-research-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:312317016332:android:552bef35d84c48511ff129",
+        "android_client_info": {
+          "package_name": "com.humanresearchapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGtaU0eoRqyeaI0BoVk6fSQsc7A_R5huY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
