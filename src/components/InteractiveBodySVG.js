@@ -18,8 +18,8 @@ const InteractiveBodySVG = ({ onBodyPartPress }) => {
     }
   };
 
-  // Touch area component
-  const TouchArea = ({ part, top, left, width, height, label, color = '#1abc9c' }) => (
+  // Touch area component - invisible tap zones
+  const TouchArea = ({ part, top, left, width, height, color = '#1abc9c' }) => (
     <TouchableOpacity
       style={[
         styles.touchArea,
@@ -28,15 +28,13 @@ const InteractiveBodySVG = ({ onBodyPartPress }) => {
           left: left * scaleX,
           width: width * scaleX,
           height: height * scaleY,
-          backgroundColor: `${color}40`,
-          borderColor: color,
+          backgroundColor: 'transparent',
+          borderColor: 'transparent',
         }
       ]}
       onPress={() => handlePress(part)}
-      activeOpacity={0.7}
-    >
-      <Text style={[styles.touchLabel, { color }]}>{label}</Text>
-    </TouchableOpacity>
+      activeOpacity={0.5}
+    />
   );
 
   return (
@@ -141,32 +139,13 @@ const InteractiveBodySVG = ({ onBodyPartPress }) => {
         </Svg>
 
         {/* Touch overlay areas */}
-        <TouchArea part="hair" top={15} left={85} width={130} height={50} label="HAIR" color="#8B4513" />
-        <TouchArea part="brain" top={35} left={115} width={70} height={45} label="BRAIN" color="#E74C3C" />
-        <TouchArea part="heart" top={190} left={100} width={50} height={45} label="HEART" color="#E74C3C" />
-        <TouchArea part="skin" top={210} left={125} width={50} height={45} label="SKIN" color="#FFD700" />
-        <TouchArea part="stomach" top={250} left={115} width={70} height={65} label="FAT LOSS" color="#27ae60" />
-        <TouchArea part="sexual" top={315} left={125} width={50} height={35} label="SEXUAL" color="#FF69B4" />
-        <TouchArea part="muscle" top={195} left={50} width={50} height={60} label="MUSCLE" color="#9b59b6" />
-      </View>
-      
-      {/* Legend */}
-      <View style={styles.legend}>
-        <Text style={styles.legendTitle}>Tap any area to browse compounds</Text>
-        <View style={styles.legendRow}>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#E74C3C' }]} />
-            <Text style={styles.legendText}>Brain/Heart</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#27ae60' }]} />
-            <Text style={styles.legendText}>Fat Loss</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDot, { backgroundColor: '#9b59b6' }]} />
-            <Text style={styles.legendText}>Muscle</Text>
-          </View>
-        </View>
+        <TouchArea part="hair" top={15} left={85} width={130} height={50} />
+        <TouchArea part="brain" top={35} left={115} width={70} height={45} />
+        <TouchArea part="heart" top={190} left={100} width={50} height={45} />
+        <TouchArea part="skin" top={210} left={125} width={50} height={45} />
+        <TouchArea part="stomach" top={250} left={115} width={70} height={65} />
+        <TouchArea part="sexual" top={315} left={125} width={50} height={35} />
+        <TouchArea part="muscle" top={195} left={50} width={50} height={60} />
       </View>
     </View>
   );
@@ -184,44 +163,6 @@ const styles = StyleSheet.create({
   touchArea: {
     position: 'absolute',
     borderRadius: 8,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  touchLabel: {
-    fontSize: 9,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  legend: {
-    marginTop: 15,
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  legendTitle: {
-    fontSize: 14,
-    color: '#888',
-    marginBottom: 10,
-  },
-  legendRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-    gap: 15,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  legendDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    marginRight: 5,
-  },
-  legendText: {
-    fontSize: 12,
-    color: '#aaa',
   },
 });
 

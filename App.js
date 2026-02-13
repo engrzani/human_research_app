@@ -19,6 +19,7 @@ import PrivacyScreen from './src/screens/PrivacyScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import DisclaimerScreen from './src/screens/DisclaimerScreen';
 import SearchScreen from './src/screens/SearchScreen';
+import CheckoutScreen from './src/screens/CheckoutScreen';
 import { CartProvider, useCart } from './src/context/CartContext';
 
 const Stack = createStackNavigator();
@@ -140,7 +141,12 @@ export default function App() {
             <Stack.Screen 
               name="Cart" 
               component={CartScreen} 
-              options={{ title: 'Research List' }}
+              options={{ title: 'Research List', headerShown: false }}
+            />
+            <Stack.Screen 
+              name="Checkout" 
+              component={CheckoutScreen} 
+              options={{ headerShown: false }}
             />
             <Stack.Screen 
               name="Settings" 
