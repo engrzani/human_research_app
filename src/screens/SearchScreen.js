@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, memo, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,104 @@ import {
   FlatList,
   TouchableOpacity,
   StatusBar,
-  Image,
   ScrollView,
+  Animated,
+  Easing,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { PRODUCTS, CATEGORIES } from '../data/products';
-import { useCart } from '../context/CartContext';
+
+// Animated product card component
+const ProductItem = memo(({ item, navigation, index }) => {
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(30)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Staggered entrance animation
+    const delay = Math.min(index * 80, 400);
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 350,
+        delay,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.ease),
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 400,
+        delay,
+        useNativeDriver: true,
+        easing: Easing.out(Easing.back(1.2)),
+      }),
+    ]).start();
+  }, []);
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.97,
+      friction: 8,
+      tension: 200,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 5,
+      tension: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Animated.View
+      style={{
+        opacity: fadeAnim,
+        transform: [
+          { translateY: slideAnim },
+          { scale: scaleAnim },
+        ],
+      }}
+    >
+      <TouchableOpacity 
+        style={styles.productCard}
+        onPress={() => navigation.navigate('ProductDetail', { product: item })}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        activeOpacity={1}
+      >
+        {/* Product Info */}
+        <View style={styles.productInfo}>
+          <View style={styles.productHeader}>
+            <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
+          </View>
+          
+          {item.casNumber && item.casNumber !== 'N/A' && (
+            <Text style={styles.casNumber}>CAS: {item.casNumber}</Text>
+          )}
+          
+          <Text style={styles.productDescription} numberOfLines={2}>
+            {item.description || item.whatItIs || 'Research compound for laboratory use.'}
+          </Text>
+          
+          <View style={styles.viewRow}>
+            <TouchableOpacity 
+              style={styles.viewButton}
+              onPress={() => navigation.navigate('ProductDetail', { product: item })}
+            >
+              <Text style={styles.viewButtonText}>Learn More</Text>
+              <Ionicons name="chevron-forward" size={14} color="#1abc9c" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+});
 
 const SearchScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -21,18 +112,17 @@ const SearchScreen = ({ navigation }) => {
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [sortBy, setSortBy] = useState('Name');
   const [showFilters, setShowFilters] = useState(false);
-  const { addToCart } = useCart();
 
   // Categories for filter - matching all product categories
   const categories = [
-    { id: 'All', name: 'All' },
-    { id: 'brain', name: 'Nootropics' },
-    { id: 'hair', name: 'Hair' },
-    { id: 'fatLoss', name: 'Fat Loss' },
-    { id: 'muscle', name: 'Muscle' },
-    { id: 'heart', name: 'Endurance/Longevity' },
-    { id: 'skin', name: 'Skin' },
-    { id: 'sexual', name: 'Sexual Health' },
+    { id: 'All', name: ' All', emoji: '' },
+    { id: 'brain', name: ' Nootropics', emoji: '' },
+    { id: 'hair', name: ' Hair', emoji: '' },
+    { id: 'fatLoss', name: ' Fat Loss', emoji: '' },
+    { id: 'muscle', name: ' Muscle', emoji: '' },
+    { id: 'heart', name: ' Longevity', emoji: '' },
+    { id: 'skin', name: ' Skin', emoji: '' },
+    { id: 'sexual', name: ' Sexual Health', emoji: '' },
   ];
 
   // Get subcategories for selected category
@@ -45,7 +135,7 @@ const SearchScreen = ({ navigation }) => {
   }, [selectedCategory]);
 
   // Sort options
-  const sortOptions = ['Name', 'Price ↑', 'Price ↓', 'Purity'];
+  const sortOptions = ['Name'];
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
@@ -76,99 +166,14 @@ const SearchScreen = ({ navigation }) => {
       case 'Name':
         filtered.sort((a, b) => a.name.localeCompare(b.name));
         break;
-      case 'Price ↑':
-        filtered.sort((a, b) => (a.sizes?.[0]?.price || a.price) - (b.sizes?.[0]?.price || b.price));
-        break;
-      case 'Price ↓':
-        filtered.sort((a, b) => (b.sizes?.[0]?.price || b.price) - (a.sizes?.[0]?.price || a.price));
-        break;
-      case 'Purity':
-        filtered.sort((a, b) => {
-          const purityA = parseInt(a.purity) || 0;
-          const purityB = parseInt(b.purity) || 0;
-          return purityB - purityA;
-        });
-        break;
     }
     
     return filtered;
   }, [searchQuery, selectedCategory, selectedSubcategory, sortBy]);
 
-  const handleAddToCart = (product) => {
-    const productWithSize = {
-      ...product,
-      selectedSize: product.sizes?.[0]?.size || 'Standard',
-      price: product.sizes?.[0]?.price || product.price,
-    };
-    addToCart(productWithSize);
-  };
-
-  const renderProduct = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.productCard}
-      onPress={() => navigation.navigate('ProductDetail', { product: item })}
-      activeOpacity={0.8}
-    >
-      {/* Product Image */}
-      <View style={styles.imageContainer}>
-        {item.image ? (
-          <Image 
-            source={{ uri: item.image }} 
-            style={styles.productImage}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={styles.placeholderImage}>
-            <Ionicons name="flask" size={40} color="#1abc9c" />
-          </View>
-        )}
-      </View>
-      
-      {/* Product Info */}
-      <View style={styles.productInfo}>
-        <View style={styles.productHeader}>
-          <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
-          {item.purity && (
-            <View style={styles.purityBadge}>
-              <Text style={styles.purityText}>{item.purity}</Text>
-            </View>
-          )}
-        </View>
-        
-        {item.casNumber && item.casNumber !== 'N/A' && (
-          <Text style={styles.casNumber}>CAS: {item.casNumber}</Text>
-        )}
-        
-        <Text style={styles.productDescription} numberOfLines={2}>
-          {item.description || item.whatItIs || 'Research compound for laboratory use.'}
-        </Text>
-        
-        {item.sizes && item.sizes.length > 0 && (
-          <Text style={styles.sizesText}>{item.sizes.length} sizes available</Text>
-        )}
-        
-        <View style={styles.priceRow}>
-          <View>
-            <Text style={styles.fromText}>From</Text>
-            <Text style={styles.productPrice}>
-              ${item.sizes?.[0]?.price?.toFixed(2) || item.price?.toFixed(2) || '0.00'}
-            </Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.viewButton}
-            onPress={() => navigation.navigate('ProductDetail', { product: item })}
-          >
-            <Text style={styles.viewButtonText}>View</Text>
-            <Ionicons name="chevron-forward" size={14} color="#1abc9c" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#121212" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       
       {/* Header */}
       <View style={styles.header}>
@@ -198,6 +203,31 @@ const SearchScreen = ({ navigation }) => {
           >
             <Ionicons name="options" size={22} color="#fff" />
           </TouchableOpacity>
+        </View>
+
+        <Text style={styles.quickLabel}>Categories</Text>
+        <View style={styles.categoryGrid}>
+          {categories.map((cat) => (
+            <TouchableOpacity
+              key={cat.id}
+              style={[
+                styles.categoryChip,
+                selectedCategory === cat.id && styles.categoryChipSelected
+              ]}
+              onPress={() => {
+                setSelectedCategory(cat.id);
+                setSelectedSubcategory(null);
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={[
+                styles.categoryChipText,
+                selectedCategory === cat.id && styles.categoryChipTextSelected
+              ]}>
+                {cat.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
 
@@ -315,7 +345,7 @@ const SearchScreen = ({ navigation }) => {
       {/* Products List */}
       <FlatList
         data={filteredProducts}
-        renderItem={renderProduct}
+        renderItem={({ item, index }) => <ProductItem item={item} navigation={navigation} index={index} />}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.productList}
         showsVerticalScrollIndicator={false}
@@ -334,7 +364,7 @@ const SearchScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#000000',
   },
   header: {
     padding: 20,
@@ -355,6 +385,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+  },
+  quickLabel: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  categoryGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  categoryChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 18,
+    backgroundColor: '#2a2a2a',
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  categoryChipSelected: {
+    backgroundColor: '#1abc9c',
+    borderColor: '#1abc9c',
+  },
+  categoryChipText: {
+    fontSize: 13,
+    color: '#999',
+    fontWeight: '500',
+  },
+  categoryChipTextSelected: {
+    color: '#fff',
+  },
+  quickCategoryScroll: {
+    marginHorizontal: -4,
+  },
+  quickCategoryContent: {
+    paddingHorizontal: 4,
   },
   searchBox: {
     flex: 1,
@@ -441,22 +508,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2a2a2a',
   },
-  imageContainer: {
-    width: '100%',
-    height: 180,
-    backgroundColor: '#252525',
-  },
-  productImage: {
-    width: '100%',
-    height: '100%',
-  },
-  placeholderImage: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#252525',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   productInfo: {
     padding: 16,
   },
@@ -496,25 +547,10 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 10,
   },
-  sizesText: {
-    fontSize: 12,
-    color: '#1abc9c',
-    marginBottom: 12,
-  },
-  priceRow: {
+  viewRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    marginTop: 5,
-  },
-  fromText: {
-    fontSize: 11,
-    color: '#666',
-  },
-  productPrice: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
+    justifyContent: 'flex-end',
+    marginTop: 10,
   },
   viewButton: {
     flexDirection: 'row',

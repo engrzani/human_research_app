@@ -37,42 +37,45 @@ const SubcategoryScreen = ({ route, navigation }) => {
     return products.length;
   };
 
-  const getIconForCategory = () => {
-    const icons = {
-      brain: 'brain',
-      hair: 'leaf',
-      fatLoss: 'fitness',
-      muscle: 'barbell',
-      heart: 'heart',
-      skin: 'sparkles',
-      sexual: 'heart-circle',
+  const getCategoryVisual = () => {
+    const visuals = {
+      brain: { emoji: '🧠' },
+      hair: { emoji: '💇' },
+      fatLoss: { icon: 'fitness' },
+      muscle: { emoji: '💪' },
+      heart: { emoji: '❤️' },
+      skin: { icon: 'sparkles' },
+      sexual: { icon: 'heart-circle' },
     };
-    return icons[category] || 'flask';
+    return visuals[category] || { icon: 'flask' };
   };
 
+  const categoryVisual = getCategoryVisual();
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#121212" />
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {/* Header Section */}
         <View style={styles.header}>
           <View style={styles.iconContainer}>
-            <Ionicons name={getIconForCategory()} size={40} color="#1abc9c" />
+            {categoryVisual.emoji ? (
+              <Text style={styles.emojiIcon}>{categoryVisual.emoji}</Text>
+            ) : (
+              <Ionicons name={categoryVisual.icon} size={32} color="#1abc9c" />
+            )}
           </View>
           <Text style={styles.title}>{categoryInfo.name}</Text>
           <Text style={styles.description}>{categoryInfo.description}</Text>
-          <Text style={styles.productCount}>{getTotalProducts()} compounds available</Text>
         </View>
 
-        {/* Subcategories */}
-        <View style={styles.subcategoriesContainer}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          
+        {/* Subcategories List */}
+        <View style={styles.listContainer}>
           {Object.entries(categoryInfo.subcategories).map(([key, subcat]) => (
             <TouchableOpacity
               key={key}
-              style={styles.subcategoryCard}
+              style={styles.subcategoryItem}
               onPress={() => handleSubcategoryPress(key)}
               activeOpacity={0.7}
             >
@@ -81,23 +84,10 @@ const SubcategoryScreen = ({ route, navigation }) => {
                 <Text style={styles.subcategoryDescription} numberOfLines={2}>
                   {subcat.description}
                 </Text>
-                <Text style={styles.subcategoryCount}>
-                  {getProductCount(key)} compounds
-                </Text>
               </View>
-              <Ionicons name="chevron-forward" size={24} color="#1abc9c" />
+              <Ionicons name="chevron-forward" size={22} color="#666" />
             </TouchableOpacity>
           ))}
-
-          {/* View All Button */}
-          <TouchableOpacity
-            style={styles.viewAllButton}
-            onPress={() => navigation.navigate('Shop', { category })}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.viewAllText}>View All {categoryInfo.name}</Text>
-            <Ionicons name="arrow-forward" size={20} color="#fff" />
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -107,59 +97,55 @@ const SubcategoryScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#000000',
+  },
+  scrollView: {
+    flex: 1,
   },
   header: {
-    padding: 24,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 30,
     alignItems: 'center',
     borderBottomWidth: 1,
     borderBottomColor: '#2a2a2a',
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#1a3a2e',
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: 'rgba(26, 188, 156, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
+  emojiIcon: {
+    fontSize: 30,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '700',
     color: '#fff',
-    marginBottom: 12,
+    marginBottom: 8,
     textAlign: 'center',
   },
   description: {
     fontSize: 14,
-    color: '#999',
-    lineHeight: 22,
-    textAlign: 'center',
-    paddingHorizontal: 10,
-  },
-  productCount: {
-    fontSize: 13,
-    color: '#1abc9c',
-    marginTop: 12,
-    fontWeight: '500',
-  },
-  subcategoriesContainer: {
-    padding: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
     color: '#888',
-    marginBottom: 16,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    lineHeight: 20,
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
-  subcategoryCard: {
+  listContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 30,
+  },
+  subcategoryItem: {
     backgroundColor: '#1e1e1e',
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 12,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
@@ -167,38 +153,18 @@ const styles = StyleSheet.create({
   },
   subcategoryContent: {
     flex: 1,
+    paddingRight: 10,
   },
   subcategoryName: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '600',
     color: '#fff',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   subcategoryDescription: {
     fontSize: 13,
     color: '#888',
-    lineHeight: 19,
-    marginBottom: 8,
-  },
-  subcategoryCount: {
-    fontSize: 12,
-    color: '#1abc9c',
-    fontWeight: '500',
-  },
-  viewAllButton: {
-    backgroundColor: '#1abc9c',
-    borderRadius: 12,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
-  },
-  viewAllText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#fff',
-    marginRight: 8,
+    lineHeight: 18,
   },
 });
 

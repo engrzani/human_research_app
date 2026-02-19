@@ -5,19 +5,33 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 const TermsScreen = ({ navigation }) => {
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.title}>Terms & Conditions</Text>
+        <Text style={styles.headerTitle}>Terms & Conditions</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
-      <View style={styles.content}>
+      <ScrollView 
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         <Text style={styles.sectionTitle}>1. Acceptance of Terms</Text>
         <Text style={styles.paragraph}>
           By accessing or using this application, you agree to be bound by these Terms & Conditions. If you do not agree, do not use the app.
@@ -95,50 +109,60 @@ const TermsScreen = ({ navigation }) => {
         <Text style={styles.paragraph}>
           For questions regarding these Terms, contact: support@yourdomain.com
         </Text>
-      </View>
-    </ScrollView>
+
+        <View style={styles.bottomSpacer} />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ecf0f1',
+    backgroundColor: '#000000',
   },
   header: {
-    backgroundColor: '#2c3e50',
-    padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a2a2a',
   },
   backButton: {
-    color: '#fff',
-    fontSize: 16,
-    marginRight: 15,
+    padding: 5,
   },
-  title: {
-    color: '#fff',
+  headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#fff',
   },
-  content: {
-    backgroundColor: '#fff',
-    margin: 15,
-    borderRadius: 10,
-    padding: 20,
+  headerSpacer: {
+    width: 34,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontWeight: '600',
+    color: '#1abc9c',
     marginTop: 20,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   paragraph: {
     fontSize: 14,
-    color: '#7f8c8d',
-    lineHeight: 20,
+    color: '#bbb',
+    lineHeight: 22,
     marginBottom: 10,
+  },
+  bottomSpacer: {
+    height: 40,
   },
 });
 

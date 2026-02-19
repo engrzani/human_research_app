@@ -5,19 +5,33 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 const PrivacyScreen = ({ navigation }) => {
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="chevron-back" size={24} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.title}>Privacy Policy</Text>
+        <Text style={styles.headerTitle}>Privacy Policy</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
-      <View style={styles.content}>
+      <ScrollView 
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         <Text style={styles.sectionTitle}>1. Overview</Text>
         <Text style={styles.paragraph}>
           This Privacy Policy explains how this app collects, uses, and protects information when you use the app.
@@ -27,25 +41,28 @@ const PrivacyScreen = ({ navigation }) => {
         <Text style={styles.paragraph}>
           We collect only the information necessary to operate the app and provide its features.
         </Text>
-        <Text style={styles.paragraph}>
-          This may include: Account information (such as email address), App usage data related to saved research and preferences, Device and technical information (such as app version and device type).
-        </Text>
+        <Text style={styles.paragraph}>This may include:</Text>
+        <Text style={styles.bulletPoint}>• Account information (such as email address)</Text>
+        <Text style={styles.bulletPoint}>• App usage data related to saved research and preferences</Text>
+        <Text style={styles.bulletPoint}>• Device and technical information (such as app version and device type)</Text>
         <Text style={styles.paragraph}>
           We do not collect sensitive personal data.
         </Text>
 
         <Text style={styles.sectionTitle}>3. How Information Is Used</Text>
-        <Text style={styles.paragraph}>
-          Information collected is used solely to: Provide and maintain app functionality, Save user preferences and research lists, Improve app performance and reliability, Communicate with users regarding app-related matters.
-        </Text>
+        <Text style={styles.paragraph}>Information collected is used solely to:</Text>
+        <Text style={styles.bulletPoint}>• Provide and maintain app functionality</Text>
+        <Text style={styles.bulletPoint}>• Save user preferences and research lists</Text>
+        <Text style={styles.bulletPoint}>• Improve app performance and reliability</Text>
+        <Text style={styles.bulletPoint}>• Communicate with users regarding app-related matters</Text>
 
         <Text style={styles.sectionTitle}>4. Data Sharing</Text>
         <Text style={styles.paragraph}>
           We do not sell, rent, or trade personal information.
         </Text>
-        <Text style={styles.paragraph}>
-          Information may be shared only: With service providers necessary to operate the app, When required by law.
-        </Text>
+        <Text style={styles.paragraph}>Information may be shared only:</Text>
+        <Text style={styles.bulletPoint}>• With service providers necessary to operate the app</Text>
+        <Text style={styles.bulletPoint}>• When required by law</Text>
 
         <Text style={styles.sectionTitle}>5. External Websites</Text>
         <Text style={styles.paragraph}>
@@ -80,52 +97,69 @@ const PrivacyScreen = ({ navigation }) => {
 
         <Text style={styles.sectionTitle}>10. Contact</Text>
         <Text style={styles.paragraph}>
-          For questions regarding this Privacy Policy, contact: support@yourdomain.com
+          For questions regarding this Privacy Policy, contact:{'\n'}support@yourdomain.com
         </Text>
-      </View>
-    </ScrollView>
+
+        <View style={styles.bottomSpacer} />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ecf0f1',
+    backgroundColor: '#000000',
   },
   header: {
-    backgroundColor: '#2c3e50',
-    padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a2a2a',
   },
   backButton: {
-    color: '#fff',
-    fontSize: 16,
-    marginRight: 15,
+    padding: 5,
   },
-  title: {
-    color: '#fff',
+  headerTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#fff',
   },
-  content: {
-    backgroundColor: '#fff',
-    margin: 15,
-    borderRadius: 10,
-    padding: 20,
+  headerSpacer: {
+    width: 34,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#2c3e50',
+    fontWeight: '600',
+    color: '#1abc9c',
     marginTop: 20,
-    marginBottom: 10,
+    marginBottom: 12,
   },
   paragraph: {
     fontSize: 14,
-    color: '#7f8c8d',
-    lineHeight: 20,
+    color: '#bbb',
+    lineHeight: 22,
     marginBottom: 10,
+  },
+  bulletPoint: {
+    fontSize: 14,
+    color: '#bbb',
+    lineHeight: 22,
+    marginBottom: 6,
+    paddingLeft: 10,
+  },
+  bottomSpacer: {
+    height: 40,
   },
 });
 

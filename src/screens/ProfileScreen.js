@@ -6,114 +6,152 @@ import {
   TouchableOpacity,
   StatusBar,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
+import { CommonActions } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation }) => {
+  const { user, signOut } = useAuth();
 
-  const menuItems = [
-    { 
-      icon: 'cube-outline', 
-      iconBg: '#1a3a2e',
-      label: 'Orders', 
-      subtitle: '0 orders',
-      screen: 'Orders' 
-    },
-    { 
-      icon: 'document-text-outline', 
-      iconBg: '#1a3a2e',
-      label: 'Legal & Disclaimers', 
-      subtitle: 'Research compliance',
-      screen: 'ResearchDisclaimer' 
-    },
-    { 
-      icon: 'shield-outline', 
-      iconBg: '#1a3a2e',
-      label: 'Terms & Conditions', 
-      subtitle: 'App usage terms',
-      screen: 'Terms' 
-    },
-    { 
-      icon: 'lock-closed-outline', 
-      iconBg: '#1a3a2e',
-      label: 'Privacy Policy', 
-      subtitle: 'Data protection',
-      screen: 'Privacy' 
-    },
-    { 
-      icon: 'settings-outline', 
-      iconBg: '#1a3a2e',
-      label: 'Settings', 
-      subtitle: 'App preferences',
-      screen: 'Settings' 
-    },
-  ];
+  const handleSignOut = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Sign Out', 
+          style: 'destructive',
+          onPress: async () => {
+            await signOut();
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+              })
+            );
+          }
+        },
+      ]
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to delete your account? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive',
+          onPress: () => {
+            // Placeholder for delete account functionality
+            Alert.alert('Contact Support', 'Please contact support@yourdomain.com to delete your account.');
+          }
+        },
+      ]
+    );
+  };
+
+  const SettingsRow = ({ label, value, onPress, showChevron = true }) => (
+    <TouchableOpacity 
+      style={styles.settingsRow} 
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+    >
+      <Text style={styles.settingsLabel}>{label}</Text>
+      <View style={styles.settingsRight}>
+        {value && <Text style={styles.settingsValue}>{value}</Text>}
+        {showChevron && <Ionicons name="chevron-forward" size={18} color="#666" />}
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#121212" />
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Account</Text>
+        <Text style={styles.headerSubtitle}>Signed in via Email</Text>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* User Profile Card */}
-        <View style={styles.profileCard}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Ionicons name="person" size={32} color="#1abc9c" />
-            </View>
-          </View>
-          <View style={styles.profileInfo}>
-            <Text style={styles.userName}>Research User</Text>
-            <Text style={styles.userEmail}>No email set</Text>
-          </View>
+        {/* Email Section */}
+        <View style={styles.section}>
+          <Text style={styles.emailLabel}>Email</Text>
+          <Text style={styles.emailValue}>{user?.email || 'johndoe@email.com'}</Text>
         </View>
 
-        {/* Menu Items */}
-        <View style={styles.menuContainer}>
-          {menuItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.menuItem}
-              onPress={() => {
-                if (item.screen === 'Orders') {
-                  // Orders screen not implemented yet, could show alert
-                  alert('Order history will appear here');
-                } else {
-                  navigation.navigate(item.screen);
-                }
-              }}
-              activeOpacity={0.7}
-            >
-              <View style={[styles.menuIconContainer, { backgroundColor: item.iconBg }]}>
-                <Ionicons name={item.icon} size={22} color="#1abc9c" />
-              </View>
-              <View style={styles.menuTextContainer}>
-                <Text style={styles.menuLabel}>{item.label}</Text>
-                <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#444" />
-            </TouchableOpacity>
-          ))}
+        {/* Sign-In Method & Change Password */}
+        <View style={styles.sectionGroup}>
+          <SettingsRow 
+            label="Sign-In Method" 
+            value="Email"
+            onPress={() => {}}
+          />
+          <View style={styles.separator} />
+          <SettingsRow 
+            label="Change Password" 
+            value="Email"
+            onPress={() => Alert.alert('Change Password', 'Password reset email will be sent to your email address.')}
+          />
         </View>
 
-        {/* Research Warning Banner */}
-        <View style={styles.warningBanner}>
-          <Ionicons name="warning" size={20} color="#f39c12" style={styles.warningIcon} />
-          <Text style={styles.warningText}>
-            FOR LABORATORY RESEARCH USE ONLY. NOT FOR HUMAN OR VETERINARY USE.
-          </Text>
+        {/* App Access Section */}
+        <Text style={styles.sectionHeader}>APP ACCESS</Text>
+        <View style={styles.sectionGroup}>
+          <SettingsRow 
+            label="Age Requirement" 
+            value="Verified: 21+"
+            onPress={() => {}}
+          />
+          <View style={styles.separator} />
+          <SettingsRow 
+            label="Educational Disclaimer" 
+            value="Acknowledged"
+            onPress={() => navigation.navigate('ResearchDisclaimer')}
+          />
         </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>BioResearch Market v1.0.0</Text>
-          <Text style={styles.footerCopyright}>2026 BioResearch Market</Text>
+        {/* Legal Section */}
+        <Text style={styles.sectionHeader}>LEGAL</Text>
+        <View style={styles.sectionGroup}>
+          <SettingsRow 
+            label="Terms of Use" 
+            onPress={() => navigation.navigate('Terms')}
+          />
+          <View style={styles.separator} />
+          <SettingsRow 
+            label="Privacy Policy" 
+            onPress={() => navigation.navigate('Privacy')}
+          />
         </View>
+
+        {/* Sign Out Button */}
+        <TouchableOpacity 
+          style={styles.signOutButton}
+          onPress={handleSignOut}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+
+        {/* Delete Account */}
+        <TouchableOpacity 
+          style={styles.deleteAccountButton}
+          onPress={handleDeleteAccount}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.deleteAccountText}>Delete Account</Text>
+        </TouchableOpacity>
+
+        <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -122,120 +160,102 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#000000',
   },
   header: {
-    padding: 20,
-    paddingBottom: 10,
+    alignItems: 'center',
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a2a2a',
   },
   headerTitle: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-  },
-  profileCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#1a3a2e',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 25,
-  },
-  avatarContainer: {
-    marginRight: 15,
-  },
-  avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#0d2018',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  userName: {
     fontSize: 18,
     fontWeight: '600',
     color: '#fff',
     marginBottom: 4,
   },
-  userEmail: {
-    fontSize: 14,
+  headerSubtitle: {
+    fontSize: 13,
     color: '#888',
   },
-  menuContainer: {
-    backgroundColor: '#1e1e1e',
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: 25,
+  content: {
+    flex: 1,
   },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  section: {
+    paddingHorizontal: 20,
     paddingVertical: 16,
-    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#2a2a2a',
   },
-  menuIconContainer: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    justifyContent: 'center',
+  emailLabel: {
+    fontSize: 14,
+    color: '#fff',
+    marginBottom: 4,
+  },
+  emailValue: {
+    fontSize: 14,
+    color: '#888',
+  },
+  sectionHeader: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#666',
+    paddingHorizontal: 20,
+    paddingTop: 25,
+    paddingBottom: 8,
+    letterSpacing: 0.5,
+  },
+  sectionGroup: {
+    backgroundColor: '#1e1e1e',
+  },
+  settingsRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 14,
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    paddingHorizontal: 20,
   },
-  menuTextContainer: {
-    flex: 1,
+  settingsLabel: {
+    fontSize: 15,
+    color: '#fff',
   },
-  menuLabel: {
+  settingsRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  settingsValue: {
+    fontSize: 14,
+    color: '#888',
+    marginRight: 6,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#2a2a2a',
+    marginLeft: 20,
+  },
+  signOutButton: {
+    backgroundColor: '#2a2a2a',
+    marginHorizontal: 20,
+    marginTop: 30,
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  signOutText: {
     fontSize: 16,
     fontWeight: '500',
     color: '#fff',
-    marginBottom: 2,
   },
-  menuSubtitle: {
-    fontSize: 13,
+  deleteAccountButton: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  deleteAccountText: {
+    fontSize: 14,
     color: '#666',
   },
-  warningBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(243, 156, 18, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(243, 156, 18, 0.3)',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 30,
-  },
-  warningIcon: {
-    marginRight: 12,
-  },
-  warningText: {
-    flex: 1,
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#f39c12',
-    lineHeight: 18,
-  },
-  footer: {
-    alignItems: 'center',
-    paddingBottom: 40,
-  },
-  footerText: {
-    fontSize: 13,
-    color: '#555',
-    marginBottom: 4,
-  },
-  footerCopyright: {
-    fontSize: 12,
-    color: '#444',
+  bottomSpacer: {
+    height: 40,
   },
 });
 

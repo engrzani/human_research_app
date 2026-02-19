@@ -13,11 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useCart } from '../context/CartContext';
 
 const CheckoutScreen = ({ navigation }) => {
-  const { cartItems, getCartTotal, clearCart } = useCart();
-  
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -68,39 +65,17 @@ const CheckoutScreen = ({ navigation }) => {
   };
 
   const handleContinue = () => {
-    if (validateForm()) {
-      Alert.alert(
-        'Order Confirmation',
-        `Your order of $${getCartTotal().toFixed(2)} will be processed.\n\nShipping to:\n${formData.fullName}\n${formData.streetAddress}\n${formData.city}, ${formData.state} ${formData.zipCode}\n${formData.country}`,
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          {
-            text: 'Place Order',
-            onPress: () => {
-              clearCart();
-              Alert.alert(
-                'Order Placed!',
-                'Thank you for your order. You will receive a confirmation email shortly.',
-                [
-                  {
-                    text: 'OK',
-                    onPress: () => navigation.navigate('MainApp'),
-                  },
-                ]
-              );
-            },
-          },
-        ]
-      );
-    }
+    if (!validateForm()) return;
+    
+    // Navigate to order confirmation screen
+    navigation.navigate('OrderConfirmation', {
+      shippingData: formData,
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#121212" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       
       {/* Header */}
       <View style={styles.header}>
@@ -226,7 +201,7 @@ const CheckoutScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#000000',
   },
   header: {
     flexDirection: 'row',
@@ -290,7 +265,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     paddingHorizontal: 20,
     paddingVertical: 15,
-    backgroundColor: '#121212',
+    backgroundColor: '#000000',
     borderTopWidth: 1,
     borderTopColor: '#333',
   },

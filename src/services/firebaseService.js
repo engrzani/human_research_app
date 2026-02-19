@@ -10,7 +10,157 @@ import {
   setDoc,
   getDoc 
 } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  updateProfile,
+} from 'firebase/auth';
+import { db, auth } from '../config/firebase';
+
+// Auth Service
+export const AuthService = {
+  // Sign in with email and password
+  async signIn(email, password) {
+    try {
+      if (!auth) {
+        // Fallback for offline/demo mode
+        return {
+          success: true,
+          user: {
+            uid: 'demo-user-' + Date.now(),
+            email: email,
+            displayName: email.split('@')[0],
+          }
+        };
+      }
+      
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      return {
+        success: true,
+        user: {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          displayName: userCredential.user.displayName || email.split('@')[0],
+        }
+      };
+    } catch (error) {
+      console.error('Sign in error:', error);
+      let errorMessage = 'Failed to sign in';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'This account has been disabled';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many failed attempts. Please try again later';
+          break;
+        case 'auth/invalid-credential':
+          errorMessage = 'Invalid email or password';
+          break;
+      }
+      
+      return { success: false, error: errorMessage };
+    }
+  },
+
+  // Sign up with email and password
+  async signUp(email, password, displayName) {
+    try {
+      if (!auth) {
+        // Fallback for offline/demo mode
+        return {
+          success: true,
+          user: {
+            uid: 'demo-user-' + Date.now(),
+            email: email,
+            displayName: displayName || email.split('@')[0],
+          }
+        };
+      }
+      
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Update display name
+      if (displayName) {
+        await updateProfile(userCredential.user, { displayName });
+      }
+      
+      // Create user profile in Firestore
+      if (db) {
+        await setDoc(doc(db, 'users', userCredential.user.uid), {
+          email: email,
+          displayName: displayName || email.split('@')[0],
+          createdAt: new Date().toISOString(),
+        });
+      }
+      
+      return {
+        success: true,
+        user: {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email,
+          displayName: displayName || email.split('@')[0],
+        }
+      };
+    } catch (error) {
+      console.error('Sign up error:', error);
+      let errorMessage = 'Failed to create account';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'An account with this email already exists';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'Password should be at least 6 characters';
+          break;
+        case 'auth/operation-not-allowed':
+          errorMessage = 'Email/password accounts are not enabled';
+          break;
+      }
+      
+      return { success: false, error: errorMessage };
+    }
+  },
+
+  // Reset password
+  async resetPassword(email) {
+    try {
+      if (!auth) {
+        return { success: true };
+      }
+      
+      await sendPasswordResetEmail(auth, email);
+      return { success: true };
+    } catch (error) {
+      console.error('Reset password error:', error);
+      let errorMessage = 'Failed to send reset email';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Invalid email address';
+          break;
+      }
+      
+      return { success: false, error: errorMessage };
+    }
+  },
+};
 
 // Helper to check if Firebase is initialized
 const isFirebaseReady = () => {

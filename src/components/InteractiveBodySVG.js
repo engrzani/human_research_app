@@ -77,8 +77,37 @@ const InteractiveBodySVG = ({ onBodyPartPress }) => {
             strokeWidth="2"
           />
 
-          {/* Brain indicator */}
-          <Circle cx="150" cy="55" r="18" fill="#E74C3C" opacity="0.8" />
+          {/* Cartoon Brain */}
+          <Path
+            d="M 135 45 
+               C 125 45, 120 50, 122 58 
+               C 118 55, 112 58, 115 68 
+               C 110 70, 112 80, 120 82 
+               C 125 88, 140 90, 150 88 
+               C 160 90, 175 88, 180 82 
+               C 188 80, 190 70, 185 68 
+               C 188 58, 182 55, 178 58 
+               C 180 50, 175 45, 165 45 
+               C 158 42, 142 42, 135 45 Z"
+            fill="#F8BBD9"
+            stroke="#E91E63"
+            strokeWidth="1.5"
+          />
+          {/* Brain wrinkle lines */}
+          <Path
+            d="M 135 55 Q 145 60, 155 55 Q 165 60, 175 55"
+            fill="none"
+            stroke="#E91E63"
+            strokeWidth="1"
+            opacity="0.6"
+          />
+          <Path
+            d="M 130 68 Q 140 72, 150 68 Q 160 72, 170 68"
+            fill="none"
+            stroke="#E91E63"
+            strokeWidth="1"
+            opacity="0.6"
+          />
 
           {/* Eyes */}
           <Circle cx="130" cy="90" r="8" fill="#fff" />
@@ -105,22 +134,103 @@ const InteractiveBodySVG = ({ onBodyPartPress }) => {
             strokeWidth="2"
           />
 
-          {/* Heart indicator */}
-          <Circle cx="130" cy="210" r="15" fill="#E74C3C" opacity="0.9" />
+          {/* Cartoon Heart Organ */}
+          <Path
+            d="M 130 195 
+               C 130 190, 120 185, 115 190 
+               C 108 195, 108 205, 115 215 
+               L 130 235 
+               L 145 215 
+               C 152 205, 152 195, 145 190 
+               C 140 185, 130 190, 130 195 Z"
+            fill="#E74C3C"
+            stroke="#C0392B"
+            strokeWidth="1.5"
+          />
+          {/* Heart details */}
+          <Path
+            d="M 122 200 Q 125 195, 128 200"
+            fill="none"
+            stroke="#F5B7B1"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
           
-          {/* Skin/Chest indicator */}
-          <Circle cx="150" cy="230" r="20" fill="#FFD700" opacity="0.6" />
+          {/* Skin/Chest indicator - sparkle star */}
+          <Circle cx="165" cy="220" r="10" fill="#FFD700" opacity="0.7" />
+          <Path
+            d="M 165 212 L 167 218 L 173 218 L 168 222 L 170 228 L 165 224 L 160 228 L 162 222 L 157 218 L 163 218 Z"
+            fill="#FFF176"
+            stroke="#FFD700"
+            strokeWidth="0.5"
+          />
 
-          {/* Stomach indicator */}
-          <Ellipse cx="150" cy="280" rx="25" ry="30" fill="#27ae60" opacity="0.7" />
+          {/* Cartoon Stomach Organ */}
+          <Path
+            d="M 125 260 
+               C 115 260, 110 270, 112 285 
+               C 114 300, 125 315, 150 315 
+               C 175 315, 186 300, 188 285 
+               C 190 270, 185 260, 175 260 
+               C 170 260, 165 265, 150 265 
+               C 135 265, 130 260, 125 260 Z"
+            fill="#F39C12"
+            stroke="#D68910"
+            strokeWidth="1.5"
+          />
+          {/* Stomach opening (esophagus connection) */}
+          <Ellipse cx="150" cy="258" rx="12" ry="6" fill="#E67E22" stroke="#D68910" strokeWidth="1" />
+          {/* Stomach texture lines */}
+          <Path
+            d="M 130 280 Q 150 275, 170 280"
+            fill="none"
+            stroke="#D68910"
+            strokeWidth="1"
+            opacity="0.6"
+          />
+          <Path
+            d="M 135 295 Q 150 290, 165 295"
+            fill="none"
+            stroke="#D68910"
+            strokeWidth="1"
+            opacity="0.6"
+          />
 
           {/* Sexual Health indicator */}
           <Circle cx="150" cy="330" r="15" fill="#FF69B4" opacity="0.8" />
 
           {/* Left Arm */}
           <Rect x="55" y="185" width="35" height="110" rx="10" fill="#FDBF6F" stroke="#E8A850" strokeWidth="2" />
-          {/* Muscle indicator */}
-          <Ellipse cx="72" cy="220" rx="15" ry="20" fill="#9b59b6" opacity="0.8" />
+          
+          {/* Cartoon Bicep Muscle (flexing shape) */}
+          <Path
+            d="M 58 200 
+               C 50 205, 48 220, 55 235 
+               C 58 240, 65 242, 72 240 
+               C 80 238, 88 230, 90 220 
+               C 92 210, 88 200, 80 198 
+               C 72 196, 65 198, 58 200 Z"
+            fill="#9b59b6"
+            stroke="#8E44AD"
+            strokeWidth="1.5"
+          />
+          {/* Bicep highlight (flexed peak) */}
+          <Path
+            d="M 62 210 Q 68 205, 75 210"
+            fill="none"
+            stroke="#D7BDE2"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+          {/* Muscle fiber lines */}
+          <Path
+            d="M 60 220 Q 70 218, 80 222"
+            fill="none"
+            stroke="#8E44AD"
+            strokeWidth="1"
+            opacity="0.5"
+          />
+          
           {/* Left Hand */}
           <Circle cx="72" cy="305" r="18" fill="#FDBF6F" stroke="#E8A850" strokeWidth="2" />
 

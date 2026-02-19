@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,44 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
-  Image,
   StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { PRODUCTS, getProductsByCategory, getCategoryInfo } from '../data/products';
 import { useCart } from '../context/CartContext';
+
+const ProductItem = memo(({ item, navigation }) => (
+  <TouchableOpacity
+    style={styles.productCard}
+    onPress={() => navigation.navigate('ProductDetail', { product: item })}
+    activeOpacity={0.8}
+  >
+    <View style={styles.productInfo}>
+      <View style={styles.productHeader}>
+        <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
+      </View>
+      
+      {item.casNumber && item.casNumber !== 'N/A' && (
+        <Text style={styles.casNumber}>CAS: {item.casNumber}</Text>
+      )}
+      
+      <Text style={styles.productDescription} numberOfLines={2}>
+        {item.description}
+      </Text>
+      
+      <View style={styles.viewRow}>
+        <TouchableOpacity 
+          style={styles.viewButton}
+          onPress={() => navigation.navigate('ProductDetail', { product: item })}
+        >
+          <Text style={styles.viewButtonText}>Learn More</Text>
+          <Ionicons name="chevron-forward" size={14} color="#1abc9c" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  </TouchableOpacity>
+));
 
 const ShopScreen = ({ navigation, route }) => {
   const { category, subcategory } = route.params || {};
@@ -41,85 +72,14 @@ const ShopScreen = ({ navigation, route }) => {
     setProducts(filtered);
   };
 
-  const handleAddToCart = (product) => {
-    const productWithSize = {
-      ...product,
-      selectedSize: product.sizes?.[0]?.size || 'Standard',
-      price: product.sizes?.[0]?.price || product.price,
-    };
-    addToCart(productWithSize);
-  };
-
   const getSubcategoryName = () => {
     if (!subcategory || !categoryInfo?.subcategories) return null;
     return categoryInfo.subcategories[subcategory]?.name;
   };
 
-  const renderProduct = ({ item }) => (
-    <TouchableOpacity
-      style={styles.productCard}
-      onPress={() => navigation.navigate('ProductDetail', { product: item })}
-      activeOpacity={0.8}
-    >
-      {/* Product Image */}
-      <View style={styles.imageContainer}>
-        {item.image ? (
-          <Image 
-            source={{ uri: item.image }} 
-            style={styles.productImage}
-            resizeMode="cover"
-          />
-        ) : (
-          <View style={styles.placeholderImage}>
-            <Ionicons name="flask" size={40} color="#1abc9c" />
-          </View>
-        )}
-      </View>
-      
-      <View style={styles.productInfo}>
-        <View style={styles.productHeader}>
-          <Text style={styles.productName} numberOfLines={1}>{item.name}</Text>
-          {item.purity && (
-            <View style={styles.purityBadge}>
-              <Text style={styles.purityText}>{item.purity}</Text>
-            </View>
-          )}
-        </View>
-        
-        {item.casNumber && item.casNumber !== 'N/A' && (
-          <Text style={styles.casNumber}>CAS: {item.casNumber}</Text>
-        )}
-        
-        <Text style={styles.productDescription} numberOfLines={2}>
-          {item.description}
-        </Text>
-        
-        {item.sizes && item.sizes.length > 0 && (
-          <Text style={styles.sizesText}>{item.sizes.length} sizes available</Text>
-        )}
-        
-        <View style={styles.priceRow}>
-          <View>
-            <Text style={styles.fromText}>From</Text>
-            <Text style={styles.productPrice}>
-              ${item.sizes?.[0]?.price?.toFixed(2) || item.price?.toFixed(2)}
-            </Text>
-          </View>
-          <TouchableOpacity 
-            style={styles.viewButton}
-            onPress={() => navigation.navigate('ProductDetail', { product: item })}
-          >
-            <Text style={styles.viewButtonText}>View</Text>
-            <Ionicons name="chevron-forward" size={14} color="#1abc9c" />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#121212" />
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
       
       {/* Header */}
       <View style={styles.header}>
@@ -134,9 +94,9 @@ const ShopScreen = ({ navigation, route }) => {
           </View>
           <TouchableOpacity
             style={styles.cartButton}
-            onPress={() => navigation.navigate('Cart')}
+            onPress={() => navigation.navigate('CartTab')}
           >
-            <Ionicons name="cart" size={22} color="#fff" />
+            <Ionicons name="flask" size={22} color="#fff" />
             {cartItemCount > 0 && (
               <View style={styles.cartBadge}>
                 <Text style={styles.cartBadgeText}>{cartItemCount}</Text>
@@ -173,7 +133,7 @@ const ShopScreen = ({ navigation, route }) => {
       {/* Products List */}
       <FlatList
         data={products}
-        renderItem={renderProduct}
+        renderItem={({ item }) => <ProductItem item={item} navigation={navigation} />}
         keyExtractor={item => item.id}
         contentContainerStyle={styles.productList}
         showsVerticalScrollIndicator={false}
@@ -192,7 +152,7 @@ const ShopScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: '#000000',
   },
   header: {
     padding: 20,
@@ -278,22 +238,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2a2a2a',
   },
-  imageContainer: {
-    width: '100%',
-    height: 160,
-    backgroundColor: '#252525',
-  },
-  productImage: {
-    width: '100%',
-    height: '100%',
-  },
-  placeholderImage: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#252525',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   productInfo: {
     padding: 16,
   },
@@ -333,25 +277,10 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginBottom: 8,
   },
-  sizesText: {
-    fontSize: 12,
-    color: '#1abc9c',
-    marginBottom: 12,
-  },
-  priceRow: {
+  viewRow: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-between',
-    marginTop: 5,
-  },
-  fromText: {
-    fontSize: 11,
-    color: '#666',
-  },
-  productPrice: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
+    justifyContent: 'flex-end',
+    marginTop: 10,
   },
   viewButton: {
     flexDirection: 'row',

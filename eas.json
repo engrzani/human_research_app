@@ -1,6 +1,3 @@
-# EAS Build Configuration
-# This file configures how your app is built for APK distribution
-
 {
   "build": {
     "development": {

@@ -48,3 +48,9 @@ firestore-debug.log
 
 # VS Code
 .vscode/
+
+# Node binaries
+node-v*/
+
+# Large media files
+*.mp4
