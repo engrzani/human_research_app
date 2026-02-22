@@ -105,43 +105,162 @@ const BicepIcon = ({ size = 50, color = '#9B59B6' }) => (
   </Svg>
 );
 
-const StomachIcon = ({ size = 50, color = '#F39C12' }) => (
-  <Svg width={size} height={size} viewBox="0 0 50 50">
-    {/* Stomach body */}
+// Realistic Stomach Icon for Fat Loss
+const StomachIcon = ({ size = 55 }) => (
+  <Svg width={size} height={size} viewBox="0 0 60 60">
+    {/* Esophagus tube */}
     <Path
-      d="M 15 8 
-         C 8 8, 4 16, 6 28 
-         C 8 40, 18 46, 30 46 
-         C 42 46, 48 38, 46 26 
-         C 44 14, 38 8, 30 8 
-         C 26 8, 22 12, 25 12 
-         C 28 12, 24 8, 20 8 
-         L 15 8 Z"
-      fill={color}
-      stroke="#D68910"
+      d="M 18 2 Q 16 4, 16 8 L 16 14 Q 16 18, 20 20"
+      fill="none"
+      stroke="#C0392B"
+      strokeWidth="5"
+      strokeLinecap="round"
+    />
+    <Path
+      d="M 18 2 Q 16 4, 16 8 L 16 14 Q 16 18, 20 20"
+      fill="none"
+      stroke="#E57373"
+      strokeWidth="3"
+      strokeLinecap="round"
+    />
+    {/* Main stomach body - realistic J-shape */}
+    <Path
+      d="M 20 16 
+         C 8 16, 4 26, 6 38 
+         C 8 50, 20 56, 34 54 
+         C 48 52, 54 42, 52 32
+         C 50 22, 42 18, 36 20
+         C 30 22, 30 28, 34 32
+         C 38 36, 44 32, 46 26
+         C 46 22, 42 18, 36 18
+         C 30 18, 26 16, 20 16
+         Z"
+      fill="#E57373"
+      stroke="#C0392B"
       strokeWidth="1.5"
     />
-    {/* Esophagus opening */}
-    <Ellipse cx="17" cy="10" rx="6" ry="4" fill="#E67E22" stroke="#D68910" strokeWidth="1" />
-    {/* Internal texture */}
+    {/* Stomach inner curve - greater curvature */}
     <Path
-      d="M 15 25 Q 28 22, 38 26"
+      d="M 12 32 Q 20 40, 32 44 Q 42 46, 48 38"
       fill="none"
-      stroke="#D68910"
+      stroke="#EF9A9A"
+      strokeWidth="3"
+      strokeLinecap="round"
+      opacity="0.8"
+    />
+    {/* Stomach folds/rugae */}
+    <Path
+      d="M 14 28 Q 22 26, 30 30"
+      fill="none"
+      stroke="#C0392B"
       strokeWidth="1.5"
       opacity="0.5"
     />
     <Path
-      d="M 18 35 Q 28 32, 36 36"
+      d="M 16 38 Q 26 36, 38 40"
       fill="none"
-      stroke="#D68910"
+      stroke="#C0392B"
       strokeWidth="1.5"
-      opacity="0.5"
+      opacity="0.4"
     />
+    <Path
+      d="M 20 46 Q 30 44, 40 48"
+      fill="none"
+      stroke="#C0392B"
+      strokeWidth="1.2"
+      opacity="0.3"
+    />
+    {/* Highlight/shine */}
+    <Path
+      d="M 14 24 Q 18 22, 24 24"
+      fill="none"
+      stroke="#FFCDD2"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      opacity="0.8"
+    />
+    {/* Pylorus (lower opening) */}
+    <Ellipse cx="46" cy="36" rx="4" ry="3" fill="#C0392B" opacity="0.6" />
   </Svg>
 );
 
-const HairIcon = ({ size = 50, color = '#8B4513' }) => null;
+// Hair Icon - Hair strands/follicle
+const HairIcon = ({ size = 55 }) => (
+  <Svg width={size} height={size} viewBox="0 0 60 60">
+    {/* Hair follicle bulb at bottom */}
+    <Ellipse cx="30" cy="52" rx="8" ry="6" fill="#D4A574" stroke="#8B4513" strokeWidth="1" />
+    <Ellipse cx="30" cy="50" rx="5" ry="3" fill="#E8C9A0" opacity="0.7" />
+    
+    {/* Main hair strand - wavy */}
+    <Path
+      d="M 30 52 
+         Q 28 45, 30 38
+         Q 32 30, 28 22
+         Q 24 14, 28 6
+         Q 30 2, 32 6
+         Q 36 14, 32 22
+         Q 28 30, 30 38
+         Q 32 45, 30 52"
+      fill="#5D4037"
+      stroke="#3E2723"
+      strokeWidth="1"
+    />
+    
+    {/* Left hair strand */}
+    <Path
+      d="M 22 54 
+         Q 18 46, 20 38
+         Q 22 28, 18 18
+         Q 16 10, 18 4"
+      fill="none"
+      stroke="#5D4037"
+      strokeWidth="4"
+      strokeLinecap="round"
+    />
+    <Path
+      d="M 22 54 
+         Q 18 46, 20 38
+         Q 22 28, 18 18
+         Q 16 10, 18 4"
+      fill="none"
+      stroke="#795548"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    
+    {/* Right hair strand */}
+    <Path
+      d="M 38 54 
+         Q 42 46, 40 38
+         Q 38 28, 42 18
+         Q 44 10, 42 4"
+      fill="none"
+      stroke="#5D4037"
+      strokeWidth="4"
+      strokeLinecap="round"
+    />
+    <Path
+      d="M 38 54 
+         Q 42 46, 40 38
+         Q 38 28, 42 18
+         Q 44 10, 42 4"
+      fill="none"
+      stroke="#795548"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    
+    {/* Center highlight */}
+    <Path
+      d="M 30 48 Q 29 40, 30 32 Q 31 24, 29 16"
+      fill="none"
+      stroke="#8D6E63"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      opacity="0.6"
+    />
+  </Svg>
+);
 
 const SkinIcon = ({ size = 50, color = '#FFD700' }) => (
   <Svg width={size} height={size} viewBox="0 0 50 50">
@@ -202,8 +321,8 @@ const CATEGORY_INFO = {
     displayName: 'Fat Loss',
     description: 'Tap to view compounds',
     IconComponent: StomachIcon,
-    color: '#F39C12',
-    bgColor: '#FFF8E1',
+    color: '#E57373',
+    bgColor: '#FFEBEE',
   },
   muscle: {
     name: 'Muscle Building',
