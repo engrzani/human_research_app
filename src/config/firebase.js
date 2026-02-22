@@ -13,7 +13,7 @@
 // See FIREBASE_SETUP_GUIDE.md for detailed instructions
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { initializeAuth, getAuth, getReactNativePersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
@@ -38,14 +38,16 @@ try {
   // Check if Firebase is already initialized
   if (getApps().length === 0) {
     app = initializeApp(firebaseConfig);
+    // Initialize Auth with AsyncStorage persistence only on first init
+    auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(ReactNativeAsyncStorage)
+    });
   } else {
     app = getApp();
+    // Get existing Auth instance
+    auth = getAuth(app);
   }
   
-  // Get Auth instance with AsyncStorage persistence
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(ReactNativeAsyncStorage)
-  });
   db = getFirestore(app);
   storage = getStorage(app);
   console.log('Firebase initialized successfully');

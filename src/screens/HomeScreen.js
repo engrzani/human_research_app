@@ -18,8 +18,6 @@ import BodyPartModal from '../components/BodyPartModal';
 import { useCart } from '../context/CartContext';
 import { getCategoryInfo } from '../data/products';
 import { useNavigation } from '@react-navigation/native';
-import StomachIcon from '../components/StomachIcon';
-import HeartIcon from '../components/HeartIcon';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -54,8 +52,30 @@ const HomeScreen = () => {
   // Active animation states
   const [activeAnimations, setActiveAnimations] = useState({});
 
+  // Persistent glow animations for bicep and pelvic spots
+  const bicepGlowAnim = useRef(new Animated.Value(0.4)).current;
+  const pelvicGlowAnim = useRef(new Animated.Value(0.4)).current;
+
+  useEffect(() => {
+    const bicepLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bicepGlowAnim, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(bicepGlowAnim, { toValue: 0.4, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    );
+    const pelvicLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pelvicGlowAnim, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(pelvicGlowAnim, { toValue: 0.4, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    );
+    bicepLoop.start();
+    pelvicLoop.start();
+    return () => { bicepLoop.stop(); pelvicLoop.stop(); };
+  }, []);
+
   // Image dimensions
-  const imageHeight = screenHeight * 0.65;
+  const imageHeight = screenHeight * 0.75;
   const imageWidth = imageHeight * 0.55;
 
   // Animation functions
@@ -342,16 +362,16 @@ const HomeScreen = () => {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Peptify</Text>
+          <Text style={styles.title}>Peptfied</Text>
           <Text style={styles.subtitle}>Tap any body part to explore compounds</Text>
         </View>
 
         {/* Interactive Body Image */}
         <View style={styles.bodyContainer}>
           <View style={[styles.imageWrapper, { width: imageWidth, height: imageHeight }]}>
-            {/* Full Body Image - final image.jpeg (Background) */}
+            {/* Full Body Image - body0.png (Background with labeled organs) */}
             <Image
-              source={require('../../final image.jpeg')}
+              source={require('../../body0.png')}
             style={styles.bodyImage}
             resizeMode="contain"
           />
@@ -577,32 +597,59 @@ const HomeScreen = () => {
               height: '46%',
             }} 
           />
+
+          {/* === IMAGE LABELS TOUCH AREAS === */}
+          {/* Labels from left to right: Stomach, Heart, Gen, Muscle, Sexual, Neurotropics */}
+          
+          {/* Stomach Label (1st from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '78%', left: '2%', width: '14%', height: '12%' }]}
+            onPress={() => handleBodyPartPress('stomach')}
+            activeOpacity={0.6}
+          />
+
+          {/* Heart Label (2nd from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '78%', left: '18%', width: '14%', height: '12%' }]}
+            onPress={() => handleBodyPartPress('heart')}
+            activeOpacity={0.6}
+          />
+
+          {/* Hair Label (3rd from left - center left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '78%', left: '34%', width: '14%', height: '12%' }]}
+            onPress={() => handleBodyPartPress('hair')}
+            activeOpacity={0.6}
+          />
+
+          {/* Skin Label (4th from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '78%', left: '46%', width: '12%', height: '12%' }]}
+            onPress={() => handleBodyPartPress('skin')}
+            activeOpacity={0.6}
+          />
+
+          {/* Muscle Label (5th from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '78%', left: '58%', width: '12%', height: '12%' }]}
+            onPress={() => handleBodyPartPress('muscle')}
+            activeOpacity={0.6}
+          />
+
+          {/* Sexual Health Label (6th from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '78%', left: '70%', width: '12%', height: '12%' }]}
+            onPress={() => handleBodyPartPress('sexual')}
+            activeOpacity={0.6}
+          />
+
+          {/* Nootropics/Brain Label (7th - far right) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '78%', left: '82%', width: '14%', height: '12%' }]}
+            onPress={() => handleBodyPartPress('brain')}
+            activeOpacity={0.6}
+          />
         </View>
-      </View>
-
-      {/* Category Labels Section */}
-      <View style={styles.categoryLabelsContainer}>
-        <TouchableOpacity 
-          style={styles.categoryLabel}
-          onPress={() => navigation.navigate('Subcategory', { category: 'fatLoss' })}
-          activeOpacity={0.8}
-        >
-          <View style={styles.categoryIconWrapper}>
-            <StomachIcon size={35} />
-          </View>
-          <Text style={styles.categoryLabelText}>Fat Loss</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={styles.categoryLabel}
-          onPress={() => navigation.navigate('Subcategory', { category: 'heart' })}
-          activeOpacity={0.8}
-        >
-          <View style={styles.categoryIconWrapper}>
-            <HeartIcon size={35} />
-          </View>
-          <Text style={styles.categoryLabelText}>Heart Health</Text>
-        </TouchableOpacity>
       </View>
 
       </ScrollView>
@@ -628,7 +675,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 100,
+    paddingBottom: 10,
   },
   header: {
     paddingHorizontal: 20,
@@ -650,7 +697,7 @@ const styles = StyleSheet.create({
   bodyContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 0,
   },
   imageWrapper: {
     position: 'relative',
@@ -670,31 +717,60 @@ const styles = StyleSheet.create({
     // borderColor: '#1abc9c',
     // borderRadius: 8,
   },
-  categoryLabelsContainer: {
-    flexDirection: 'row',
+  glowSpot: {
+    position: 'absolute',
+    zIndex: 25,
+    width: 28,
+    height: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    gap: 30,
+  },
+  glowSpotOuter: {
+    position: 'absolute',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  glowSpotCore: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  categoryLabelsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 12,
     marginBottom: 20,
   },
   categoryLabel: {
     alignItems: 'center',
-    padding: 12,
-    borderRadius: 14,
-    backgroundColor: 'rgba(26, 188, 156, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(26, 188, 156, 0.3)',
-    minWidth: 110,
+    width: 72,
   },
-  categoryIconWrapper: {
+  categoryCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
     marginBottom: 6,
   },
   categoryLabelText: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 14,
   },
   // Animation overlay styles
   animationOverlay: {

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Peptify",
-    "slug": "peptify-app",
+    "name": "Peptfied",
+    "slug": "peptfied-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -16,11 +16,11 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.peptifyapp",
+      "bundleIdentifier": "com.peptfiedapp",
       "buildNumber": "1.0.0"
     },
     "android": {
-      "package": "com.peptifyapp",
+      "package": "com.peptfiedapp",
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

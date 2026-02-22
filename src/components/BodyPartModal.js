@@ -141,32 +141,7 @@ const StomachIcon = ({ size = 50, color = '#F39C12' }) => (
   </Svg>
 );
 
-const HairIcon = ({ size = 50, color = '#8B4513' }) => (
-  <Svg width={size} height={size} viewBox="0 0 50 50">
-    {/* Head */}
-    <Circle cx="25" cy="30" r="16" fill="#FDBF6F" stroke="#E8A850" strokeWidth="1.5" />
-    {/* Hair on top */}
-    <Path
-      d="M 25 5 Q 8 8, 8 22 Q 10 18, 14 16 Q 18 12, 22 14 Q 25 8, 28 14 Q 32 12, 36 16 Q 40 18, 42 22 Q 42 8, 25 5 Z"
-      fill={color}
-      stroke="#5D3A1A"
-      strokeWidth="1.5"
-    />
-    {/* Hair strands */}
-    <Path
-      d="M 18 10 Q 20 6, 22 10"
-      fill="none"
-      stroke="#5D3A1A"
-      strokeWidth="1"
-    />
-    <Path
-      d="M 28 10 Q 30 6, 32 10"
-      fill="none"
-      stroke="#5D3A1A"
-      strokeWidth="1"
-    />
-  </Svg>
-);
+const HairIcon = ({ size = 50, color = '#8B4513' }) => null;
 
 const SkinIcon = ({ size = 50, color = '#FFD700' }) => (
   <Svg width={size} height={size} viewBox="0 0 50 50">

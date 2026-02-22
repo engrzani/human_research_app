@@ -45,10 +45,11 @@ const DisclaimerScreen = ({ navigation }) => {
     if (isAgeConfirmed && isTermsAccepted && isPrivacyAccepted) {
       try {
         await AsyncStorage.setItem(DISCLAIMER_ACCEPTED_KEY, 'true');
-        navigation.replace('MainApp');
+        // After final legal disclaimer, show the beaker splash before entering the main app
+        navigation.replace('Splash');
       } catch (error) {
         console.log('Error saving disclaimer acceptance:', error);
-        navigation.replace('MainApp');
+        navigation.replace('Splash');
       }
     }
   };
@@ -56,7 +57,7 @@ const DisclaimerScreen = ({ navigation }) => {
   const handleDecline = () => {
     Alert.alert(
       'Unable to Proceed',
-      'You must confirm you are 21+ and agree to our Terms & Conditions and Privacy Policy to use Peptify.',
+      'You must confirm you are 21+ and agree to our Terms & Conditions and Privacy Policy to use Peptfied.',
       [
         { text: 'OK', style: 'cancel' },
         { text: 'Exit App', style: 'destructive', onPress: () => BackHandler.exitApp() },
@@ -81,7 +82,7 @@ const DisclaimerScreen = ({ navigation }) => {
 
         {/* Description */}
         <Text style={styles.description}>
-          To use Peptify, you must confirm the following requirements. Please read each carefully.
+          To use Peptfied, you must confirm the following requirements. Please read each carefully.
         </Text>
 
         {/* Age Checkbox */}

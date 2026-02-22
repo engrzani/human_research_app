@@ -87,7 +87,7 @@ const PrivacyOnboardingScreen = ({ navigation }) => {
         <Text style={styles.lastUpdated}>Last Updated: February 2026</Text>
 
         <Text style={styles.introText}>
-          Peptify ("we," "our," or "us") is committed to protecting your privacy. This Privacy 
+          Peptfied ("we," "our," or "us") is committed to protecting your privacy. This Privacy 
           Policy explains how we collect, use, and safeguard your information when you use our 
           mobile application.
         </Text>

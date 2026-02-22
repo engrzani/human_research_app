@@ -234,35 +234,6 @@ const SearchScreen = ({ navigation }) => {
       {/* Filter Panel */}
       {showFilters && (
         <View style={styles.filterPanel}>
-          {/* Category */}
-          <Text style={styles.filterLabel}>Category</Text>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false}
-            style={styles.filterScroll}
-          >
-            {categories.map((cat) => (
-              <TouchableOpacity
-                key={cat.id}
-                style={[
-                  styles.filterChip,
-                  selectedCategory === cat.id && styles.filterChipSelected
-                ]}
-                onPress={() => {
-                  setSelectedCategory(cat.id);
-                  setSelectedSubcategory(null);
-                }}
-              >
-                <Text style={[
-                  styles.filterChipText,
-                  selectedCategory === cat.id && styles.filterChipTextSelected
-                ]}>
-                  {cat.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-
           {/* Subcategory - only show if category has subcategories */}
           {subcategories.length > 0 && (
             <>

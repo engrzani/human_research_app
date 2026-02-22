@@ -24,7 +24,8 @@ const TermsPrivacyOnboardingScreen = ({ navigation }) => {
     } catch (error) {
       console.log('Error saving terms acceptance:', error);
     }
-    navigation.replace('Splash');
+    // After accepting terms/privacy, go to Login.
+    navigation.replace('Login');
   };
 
   // Terms & Conditions Modal Content

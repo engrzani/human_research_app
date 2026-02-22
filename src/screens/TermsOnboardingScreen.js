@@ -80,13 +80,13 @@ const TermsOnboardingScreen = ({ navigation }) => {
 
         <Text style={styles.sectionTitle}>1. Acceptance of Terms</Text>
         <Text style={styles.termsText}>
-          By accessing or using the Peptify mobile application ("App"), you agree to be bound 
+          By accessing or using the Peptfied mobile application ("App"), you agree to be bound 
           by these Terms and Conditions. If you do not agree to these terms, do not use the App.
         </Text>
 
         <Text style={styles.sectionTitle}>2. Research Purposes Only</Text>
         <Text style={styles.termsText}>
-          All products available through Peptify are intended strictly for in-vitro research, 
+          All products available through Peptfied are intended strictly for in-vitro research, 
           laboratory experimentation, and educational purposes. Products are NOT for human 
           consumption, veterinary use, or any therapeutic application.
         </Text>
@@ -115,31 +115,31 @@ const TermsOnboardingScreen = ({ navigation }) => {
 
         <Text style={styles.sectionTitle}>6. Intellectual Property</Text>
         <Text style={styles.termsText}>
-          All content, trademarks, and intellectual property within the App are owned by Peptify 
+          All content, trademarks, and intellectual property within the App are owned by Peptfied 
           or its licensors. Unauthorized use is prohibited.
         </Text>
 
         <Text style={styles.sectionTitle}>7. Disclaimer of Warranties</Text>
         <Text style={styles.termsText}>
-          The App and all products are provided "AS IS" without warranties of any kind. Peptify 
+          The App and all products are provided "AS IS" without warranties of any kind. Peptfied 
           does not guarantee accuracy of information or fitness for any particular purpose.
         </Text>
 
         <Text style={styles.sectionTitle}>8. Limitation of Liability</Text>
         <Text style={styles.termsText}>
-          Peptify shall not be liable for any direct, indirect, incidental, special, or 
+          Peptfied shall not be liable for any direct, indirect, incidental, special, or 
           consequential damages arising from use of the App or products purchased through it.
         </Text>
 
         <Text style={styles.sectionTitle}>9. Indemnification</Text>
         <Text style={styles.termsText}>
-          You agree to indemnify and hold harmless Peptify from any claims, damages, or expenses 
+          You agree to indemnify and hold harmless Peptfied from any claims, damages, or expenses 
           arising from your use of the App or violation of these Terms.
         </Text>
 
         <Text style={styles.sectionTitle}>10. Modifications</Text>
         <Text style={styles.termsText}>
-          Peptify reserves the right to modify these Terms at any time. Continued use of the 
+          Peptfied reserves the right to modify these Terms at any time. Continued use of the 
           App constitutes acceptance of modified Terms.
         </Text>
 

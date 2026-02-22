@@ -55,7 +55,7 @@ const OnboardingScreen = ({ navigation }) => {
         <View style={styles.logoWrap}>
           <BeakerIcon size={82} fillLevel={0.5} liquidColor="#1abc9c" />
         </View>
-        <Text style={styles.title}>Welcome to Peptify</Text>
+        <Text style={styles.title}>Welcome to Peptfied</Text>
         <Text style={styles.subtitle}>A quick walkthrough before you start.</Text>
 
         <View style={styles.card}>

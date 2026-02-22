@@ -170,7 +170,7 @@ const LoginScreen = ({ navigation }) => {
             <View style={styles.iconContainer}>
               <BeakerIcon size={54} fillLevel={0.5} liquidColor="#1abc9c" />
             </View>
-            <Text style={styles.title}>Peptify</Text>
+            <Text style={styles.title}>Peptfied</Text>
             <Text style={styles.subtitle}>
               {isLogin ? 'Sign in to continue' : 'Create your account'}
             </Text>
