@@ -1,10 +1,11 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { TouchableOpacity, Text, View, Platform, Animated } from 'react-native';
+import { TouchableOpacity, Text, View, Platform, Animated, ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import BeakerIcon from './src/components/BeakerIcon';
 
 // Screens
@@ -212,7 +213,7 @@ const AnimatedBeakerTabButton = ({ onPress, accessibilityState }) => {
   const popAnim = useRef(new Animated.Value(0)).current;
   const badgeScaleAnim = useRef(new Animated.Value(1)).current;
   const previousCountRef = useRef(cartItemCount);
-  const fillLevel = Math.min(0.95, 0.35 + cartItemCount * 0.06);
+  const fillLevel = Math.max(0.35, Math.min(0.95, 0.35 + cartItemCount * 0.06));
 
   useEffect(() => {
     const previousCount = previousCountRef.current;
@@ -420,8 +421,9 @@ const AnimatedBeakerTabButton = ({ onPress, accessibilityState }) => {
             { scale: scaleAnim }, 
             { translateY: bounceAnim },
             { rotate: shakeAnim.interpolate({
-              inputRange: [-3, 0, 3],
-              outputRange: ['-7deg', '0deg', '7deg'],
+              inputRange: [-5, -3, 0, 3, 5],
+              outputRange: ['-7deg', '-5deg', '0deg', '5deg', '7deg'],
+              extrapolate: 'clamp',
             })},
           ] 
         }}>
@@ -543,13 +545,61 @@ function MainTabs() {
 }
 
 export default function App() {
+  const [initialRoute, setInitialRoute] = useState(null);
+
+  useEffect(() => {
+    const checkAppState = async () => {
+      try {
+        // First check if user is authenticated
+        const cachedUser = await AsyncStorage.getItem('user');
+        if (cachedUser) {
+          // User is logged in, go straight to app
+          setInitialRoute('MainApp');
+          return;
+        }
+
+        // User not authenticated, check onboarding progress
+        const ageVerified = await AsyncStorage.getItem('@peptify_age_verified');
+        if (!ageVerified) {
+          // Haven't done age gate yet - start from beginning
+          setInitialRoute('AgeGate');
+          return;
+        }
+
+        // Age verified, check if terms/privacy were accepted
+        const termsAccepted = await AsyncStorage.getItem('@peptify_terms_accepted');
+        if (!termsAccepted) {
+          // Age done but hasn't seen disclaimer & terms yet
+          setInitialRoute('ResearchDisclaimerOnboarding');
+          return;
+        }
+
+        // All onboarding done, go to login/signup
+        setInitialRoute('Login');
+      } catch (e) {
+        console.error('App state check error:', e);
+        setInitialRoute('AgeGate');
+      }
+    };
+    checkAppState();
+  }, []);
+
+  if (initialRoute === null) {
+    // Show loading while checking app state
+    return (
+      <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#1abc9c" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaProvider>
       <AuthProvider>
         <CartProvider>
           <NavigationContainer>
             <Stack.Navigator 
-              initialRouteName="AgeGate"
+              initialRouteName={initialRoute}
               screenOptions={{
                 headerStyle: {
                   backgroundColor: '#1a1a1a',

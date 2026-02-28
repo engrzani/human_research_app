@@ -38,13 +38,17 @@ try {
   // Check if Firebase is already initialized
   if (getApps().length === 0) {
     app = initializeApp(firebaseConfig);
-    // Initialize Auth with AsyncStorage persistence only on first init
+  } else {
+    app = getApp();
+  }
+
+  // Try to initialize auth with persistence, fall back to getAuth if already registered
+  try {
     auth = initializeAuth(app, {
       persistence: getReactNativePersistence(ReactNativeAsyncStorage)
     });
-  } else {
-    app = getApp();
-    // Get existing Auth instance
+  } catch (authError) {
+    // Auth was already initialized (e.g. hot reload), just get existing instance
     auth = getAuth(app);
   }
   

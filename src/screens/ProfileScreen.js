@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
   StatusBar,
   ScrollView,
   Alert,
@@ -58,17 +59,20 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const SettingsRow = ({ label, value, onPress, showChevron = true }) => (
-    <TouchableOpacity 
-      style={styles.settingsRow} 
+    <Pressable 
+      style={({ pressed }) => [
+        styles.settingsRow,
+        pressed && { opacity: 0.6 },
+      ]}
       onPress={onPress}
-      activeOpacity={onPress ? 0.7 : 1}
+      disabled={!onPress}
     >
       <Text style={styles.settingsLabel}>{label}</Text>
       <View style={styles.settingsRight}>
         {value && <Text style={styles.settingsValue}>{value}</Text>}
-        {showChevron && <Ionicons name="chevron-forward" size={18} color="#666" />}
+        {showChevron && onPress && <Ionicons name="chevron-forward" size={18} color="#666" />}
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 
   return (
@@ -109,7 +113,8 @@ const ProfileScreen = ({ navigation }) => {
           <SettingsRow 
             label="Age Requirement" 
             value="Verified: 21+"
-            onPress={() => {}}
+            onPress={null}
+            showChevron={false}
           />
           <View style={styles.separator} />
           <SettingsRow 

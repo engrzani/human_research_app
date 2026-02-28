@@ -18,7 +18,7 @@ import { useNavigation } from '@react-navigation/native';
 import BeakerIcon from '../components/BeakerIcon';
 
 // Animated cart item component
-const AnimatedCartItem = ({ item, index, onRemove, onRemoveOne, onAdd, onLearnMore, getCategoryLabel }) => {
+const AnimatedCartItem = ({ item, index, onRemove, onLearnMore, getCategoryLabel }) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(40)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -59,22 +59,7 @@ const AnimatedCartItem = ({ item, index, onRemove, onRemoveOne, onAdd, onLearnMo
     }).start();
   };
 
-  // Animate quantity button press
-  const qtyBounce = useRef(new Animated.Value(1)).current;
-  const animateQtyButton = () => {
-    Animated.sequence([
-      Animated.timing(qtyBounce, {
-        toValue: 1.2,
-        duration: 80,
-        useNativeDriver: true,
-      }),
-      Animated.spring(qtyBounce, {
-        toValue: 1,
-        friction: 5,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
+
 
   return (
     <Animated.View
@@ -92,6 +77,15 @@ const AnimatedCartItem = ({ item, index, onRemove, onRemoveOne, onAdd, onLearnMo
         onPressOut={handlePressOut}
         activeOpacity={1}
       >
+        {/* Remove button - top right corner */}
+        <TouchableOpacity
+          style={styles.removeButton}
+          onPress={() => onRemove(item.id)}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="remove-circle" size={22} color="#ff7675" />
+        </TouchableOpacity>
+
         <View style={styles.itemInfo}>
           <Text style={styles.itemName}>{item.name}</Text>
           {item.casNumber && item.casNumber !== 'N/A' && (
@@ -99,42 +93,6 @@ const AnimatedCartItem = ({ item, index, onRemove, onRemoveOne, onAdd, onLearnMo
           )}
           <View style={styles.categoryBadge}>
             <Text style={styles.categoryText}>{getCategoryLabel(item)}</Text>
-          </View>
-
-          <View style={styles.quantityRow}>
-            <TouchableOpacity
-              style={styles.qtyButton}
-              onPress={() => {
-                animateQtyButton();
-                onRemoveOne(item.id);
-              }}
-              activeOpacity={0.7}
-            >
-              <Animated.View style={{ transform: [{ scale: qtyBounce }] }}>
-                <Ionicons name="remove" size={16} color="#fff" />
-              </Animated.View>
-            </TouchableOpacity>
-            <Text style={styles.qtyText}>Qty {item.quantity}</Text>
-            <TouchableOpacity
-              style={styles.qtyButton}
-              onPress={() => {
-                animateQtyButton();
-                onAdd(item);
-              }}
-              activeOpacity={0.7}
-            >
-              <Animated.View style={{ transform: [{ scale: qtyBounce }] }}>
-                <Ionicons name="add" size={16} color="#fff" />
-              </Animated.View>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.removeAllButton}
-              onPress={() => onRemove(item.id)}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="trash-outline" size={14} color="#ff7675" />
-              <Text style={styles.removeAllText}>Remove</Text>
-            </TouchableOpacity>
           </View>
         </View>
         
@@ -206,8 +164,6 @@ const CartScreen = () => {
       item={item}
       index={index}
       onRemove={removeFromCart}
-      onRemoveOne={removeOneFromCart}
-      onAdd={addToCart}
       onLearnMore={handleLearnMore}
       getCategoryLabel={getCategoryLabel}
     />
@@ -370,12 +326,21 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e1e',
     borderRadius: 10,
     padding: 15,
+    paddingTop: 20,
     marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: '#2a2a2a',
+    position: 'relative',
+  },
+  removeButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
+    padding: 2,
   },
   itemInfo: {
     flex: 1,

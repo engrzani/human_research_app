@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ const SplashScreen = ({ navigation }) => {
   // Animation values
   const chevronAnim = useRef(new Animated.Value(0)).current;
   const glowAnim = useRef(new Animated.Value(0.6)).current;
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   useEffect(() => {
     // Glow pulse animation
@@ -95,11 +96,12 @@ const SplashScreen = ({ navigation }) => {
           
           <Video
             source={require('../../beaker.mp4')}
-            style={styles.beakerVideo}
+            style={[styles.beakerVideo, { opacity: videoLoaded ? 1 : 0 }]}
             resizeMode={ResizeMode.CONTAIN}
             shouldPlay
             isLooping
             isMuted
+            onLoad={() => setVideoLoaded(true)}
           />
         </View>
 
@@ -146,8 +148,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    width: screenWidth * 0.6,
-    height: screenWidth * 0.8,
+    width: screenWidth * 0.4,
+    height: screenWidth * 0.6,
   },
   beakerVideo: {
     width: '100%',
@@ -155,11 +157,11 @@ const styles = StyleSheet.create({
   },
   glowEffect: {
     position: 'absolute',
-    width: 180,
-    height: 120,
+    width: 120,
+    height: 80,
     bottom: 20,
     backgroundColor: '#2ECC71',
-    borderRadius: 90,
+    borderRadius: 60,
     shadowColor: '#2ECC71',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,

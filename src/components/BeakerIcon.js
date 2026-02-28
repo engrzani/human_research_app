@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, RadialGradient, Stop, Ellipse } from 'react-native-svg';
 
-const BeakerIcon = ({ size = 60, fillLevel = 0.5, liquidColor = '#1abc9c', animated = false }) => {
+const BeakerIcon = memo(({ size = 60, fillLevel = 0.5, liquidColor = '#1abc9c', animated = false }) => {
   // fillLevel: 0 to 1 (0 = empty, 1 = full)
   // Calculate liquid height based on fill level (in Erlenmeyer flask shape)
   const maxLiquidHeight = 36;
@@ -121,7 +121,7 @@ const BeakerIcon = ({ size = 60, fillLevel = 0.5, liquidColor = '#1abc9c', anima
       </Svg>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

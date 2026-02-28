@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Pressable,
   ScrollView,
   StatusBar,
   Alert,
@@ -11,6 +12,32 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../context/CartContext';
+
+// Extracted outside SettingsScreen to avoid remounting on every render
+const SettingItem = ({ label, subtitle, onPress, showChevron = true }) => (
+  <Pressable
+    style={({ pressed }) => [
+      styles.settingItem,
+      pressed && { opacity: 0.6 },
+    ]}
+    onPress={onPress}
+  >
+    <View style={styles.settingItemContent}>
+      <Text style={styles.settingItemLabel}>{label}</Text>
+      {subtitle && <Text style={styles.settingItemSubtitle}>{subtitle}</Text>}
+    </View>
+    {showChevron && (
+      <Ionicons name="chevron-forward" size={20} color="#666" />
+    )}
+  </Pressable>
+);
+
+const SettingItemWithValue = ({ label, value }) => (
+  <View style={styles.settingItem}>
+    <Text style={styles.settingItemLabel}>{label}</Text>
+    <Text style={styles.settingItemValue}>{value}</Text>
+  </View>
+);
 
 const SettingsScreen = ({ navigation }) => {
   const { clearCart } = useCart();
@@ -25,11 +52,18 @@ const SettingsScreen = ({ navigation }) => {
           text: 'Clear', 
           style: 'destructive',
           onPress: () => {
-            clearCart();
-            Alert.alert('Cleared', 'Your research list has been cleared.');
+            try {
+              clearCart();
+              setTimeout(() => {
+                Alert.alert('Cleared', 'Your research list has been cleared.');
+              }, 300);
+            } catch (e) {
+              console.error('Error clearing cart:', e);
+            }
           }
         },
-      ]
+      ],
+      { cancelable: true }
     );
   };
 
@@ -43,29 +77,6 @@ const SettingsScreen = ({ navigation }) => {
       ]
     );
   };
-
-  const SettingItem = ({ label, subtitle, onPress, showChevron = true }) => (
-    <TouchableOpacity 
-      style={styles.settingItem}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <View style={styles.settingItemContent}>
-        <Text style={styles.settingItemLabel}>{label}</Text>
-        {subtitle && <Text style={styles.settingItemSubtitle}>{subtitle}</Text>}
-      </View>
-      {showChevron && (
-        <Ionicons name="chevron-forward" size={20} color="#666" />
-      )}
-    </TouchableOpacity>
-  );
-
-  const SettingItemWithValue = ({ label, value }) => (
-    <View style={styles.settingItem}>
-      <Text style={styles.settingItemLabel}>{label}</Text>
-      <Text style={styles.settingItemValue}>{value}</Text>
-    </View>
-  );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -89,29 +100,12 @@ const SettingsScreen = ({ navigation }) => {
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        {/* Legal & Compliance */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>LEGAL & COMPLIANCE</Text>
-          <SettingItem 
-            label="Research Disclaimer" 
-            onPress={() => navigation.navigate('ResearchDisclaimer')}
-          />
-          <SettingItem 
-            label="Terms & Conditions" 
-            onPress={() => navigation.navigate('Terms')}
-          />
-          <SettingItem 
-            label="Privacy Policy" 
-            onPress={() => navigation.navigate('Privacy')}
-          />
-        </View>
-
         {/* Account */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>ACCOUNT</Text>
           <SettingItem 
             label="example@email.com" 
-            subtitle="Age verified: 18+"
+            subtitle="Age verified: 21+"
             onPress={() => {}}
           />
           <SettingItem 

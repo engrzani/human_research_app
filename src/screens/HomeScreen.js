@@ -74,9 +74,10 @@ const HomeScreen = () => {
     return () => { bicepLoop.stop(); pelvicLoop.stop(); };
   }, []);
 
-  // Image dimensions
-  const imageHeight = screenHeight * 0.75;
-  const imageWidth = imageHeight * 0.55;
+  // Image dimensions - calculate aspect ratio for proper fit
+  // Use contain to prevent stretching/cropping
+  const imageWidth = screenWidth;
+  const imageHeight = screenHeight;
 
   // Animation functions
   const playBrainPop = () => {
@@ -300,6 +301,7 @@ const HomeScreen = () => {
 
   const handleBodyPartPress = (bodyPart) => {
     // Play animation based on body part
+    /* Animation removed as per request - instant navigation
     switch (bodyPart) {
       case 'brain':
         playBrainPop();
@@ -323,10 +325,12 @@ const HomeScreen = () => {
         playSexualGlow();
         break;
     }
+    */
     
     setSelectedBodyPart(bodyPart);
     setModalVisible(true);
   };
+
 
   // Touchable area component
   const TouchArea = ({ part, style }) => (
@@ -352,194 +356,50 @@ const HomeScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       
-      <ScrollView 
-        style={styles.scrollView} 
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Peptfied</Text>
-          <Text style={styles.subtitle}>Tap any body part to explore compounds</Text>
-        </View>
-
-        {/* Interactive Body Image */}
-        <View style={styles.bodyContainer}>
-          <View style={[styles.imageWrapper, { width: imageWidth, height: imageHeight }]}>
-            {/* Full Body Image - body0.png (Background with labeled organs) */}
+      {/* Interactive Body Image (Background) */}
+      <View style={styles.bodyContainer}>
+        <View style={styles.imageWrapper}>
+            {/* Full Body Image - body.jpeg (Background with labeled organs) */}
             <Image
-              source={require('../../body0.png')}
+              source={require('../../body.jpeg')}
             style={styles.bodyImage}
-            resizeMode="contain"
+            resizeMode="cover"
           />
-          
-          {/* Animated Overlays */}
-          {/* Brain Pop Animation */}
-          {activeAnimations.brain && (
-            <Animated.View
-              style={[
-                styles.animationOverlay,
-                {
-                  top: '4%',
-                  left: '35%',
-                  width: '30%',
-                  height: '10%',
-                  transform: [{ scale: brainAnim }],
-                },
-              ]}
-            >
-              <View style={styles.brainGlow} />
-            </Animated.View>
-          )}
-
-          {/* Hair Pop Animation */}
-          {activeAnimations.hair && (
-            <Animated.View
-              style={[
-                styles.animationOverlay,
-                {
-                  top: '0%',
-                  left: '30%',
-                  width: '40%',
-                  height: '6%',
-                  transform: [{ scale: hairAnim }],
-                },
-              ]}
-            >
-              <View style={styles.hairGlow} />
-            </Animated.View>
-          )}
-
-          {/* Stomach Pop Animation */}
-          {activeAnimations.stomach && (
-            <Animated.View
-              style={[
-                styles.animationOverlay,
-                {
-                  top: '34%',
-                  left: '32%',
-                  width: '36%',
-                  height: '10%',
-                  transform: [{ scale: stomachAnim }],
-                },
-              ]}
-            >
-              <View style={styles.stomachGlow} />
-            </Animated.View>
-          )}
-
-          {/* Muscle Flex Animation */}
-          {activeAnimations.muscle && (
-            <Animated.View
-              style={[
-                styles.animationOverlay,
-                {
-                  top: '20%',
-                  left: '5%',
-                  width: '20%',
-                  height: '15%',
-                  transform: [{ scaleX: muscleAnim }, { scaleY: muscleAnim }],
-                },
-              ]}
-            >
-              <View style={styles.muscleGlow} />
-            </Animated.View>
-          )}
-
-          {/* Heart Beat Animation */}
-          {activeAnimations.heart && (
-            <Animated.View
-              style={[
-                styles.animationOverlay,
-                {
-                  top: '24%',
-                  left: '38%',
-                  width: '24%',
-                  height: '8%',
-                  transform: [{ scale: heartAnim }],
-                },
-              ]}
-            >
-              <View style={styles.heartGlowEffect} />
-            </Animated.View>
-          )}
-
-          {/* Skin Glow Animation - Pulsing from center of chest */}
-          {activeAnimations.skin && (
-            <Animated.View
-              style={[
-                styles.animationOverlay,
-                {
-                  top: '28%',
-                  left: '38%',
-                  width: '24%',
-                  height: '8%',
-                  opacity: skinGlowAnim,
-                  transform: [{ scale: skinPulseAnim }],
-                },
-              ]}
-            >
-              <View style={styles.skinGlowOuter}>
-                <View style={styles.skinGlowInner} />
-              </View>
-            </Animated.View>
-          )}
-
-          {/* Sexual Glow Animation - Pelvic area */}
-          {activeAnimations.sexual && (
-            <Animated.View
-              style={[
-                styles.animationOverlay,
-                {
-                  top: '46%',
-                  left: '40%',
-                  width: '20%',
-                  height: '6%',
-                  opacity: sexualGlowAnim,
-                  transform: [{ scale: sexualPulseAnim }],
-                },
-              ]}
-            >
-              <View style={styles.sexualGlowOuter}>
-                <View style={styles.sexualGlowInner} />
-              </View>
-            </Animated.View>
-          )}
           
           {/* Touchable Areas - positioned relative to image */}
-          {/* Brain/Head area */}
-          <TouchArea 
-            part="brain" 
-            style={{
-              top: '2%',
-              left: '25%',
-              width: '50%',
-              height: '12%',
-            }} 
-          />
-          
-          {/* Hair area */}
+          {/* Hair area - top of head only */}
           <TouchArea 
             part="hair" 
             style={{
-              top: '0%',
-              left: '30%',
-              width: '40%',
+              top: '2%',
+              left: '33%',
+              width: '34%',
               height: '5%',
             }} 
           />
+
+          {/* Brain/Head area (Nootropics) - below hair, on the face/forehead */}
+          <TouchArea 
+            part="brain" 
+            style={{
+              top: '7%',
+              left: '33%',
+              width: '34%',
+              height: '8%',
+            }} 
+          />
           
-          {/* Heart/Chest area */}
+          {/* Heart/Chest area - moved up to align with actual heart position */}
           <TouchArea 
             part="heart" 
             style={{
-              top: '22%',
-              left: '30%',
-              width: '40%',
-              height: '10%',
+              top: '21%',
+              left: '40%',
+              width: '20%',
+              height: '7%',
             }} 
           />
           
@@ -547,9 +407,9 @@ const HomeScreen = () => {
           <TouchArea 
             part="stomach" 
             style={{
-              top: '32%',
-              left: '28%',
-              width: '44%',
+              top: '28%',
+              left: '35%',
+              width: '30%',
               height: '12%',
             }} 
           />
@@ -558,10 +418,10 @@ const HomeScreen = () => {
           <TouchArea 
             part="muscle" 
             style={{
-              top: '18%',
-              left: '0%',
-              width: '28%',
-              height: '25%',
+              top: '16%',
+              left: '8%',
+              width: '26%',
+              height: '22%',
             }} 
           />
           
@@ -569,10 +429,10 @@ const HomeScreen = () => {
           <TouchArea 
             part="muscle" 
             style={{
-              top: '18%',
-              left: '72%',
-              width: '28%',
-              height: '25%',
+              top: '16%',
+              left: '66%',
+              width: '26%',
+              height: '22%',
             }} 
           />
           
@@ -580,9 +440,9 @@ const HomeScreen = () => {
           <TouchArea 
             part="sexual" 
             style={{
-              top: '44%',
-              left: '30%',
-              width: '40%',
+              top: '40%',
+              left: '38%',
+              width: '24%',
               height: '10%',
             }} 
           />
@@ -591,10 +451,10 @@ const HomeScreen = () => {
           <TouchArea 
             part="skin" 
             style={{
-              top: '54%',
-              left: '20%',
-              width: '60%',
-              height: '46%',
+              top: '50%',
+              left: '22%',
+              width: '56%',
+              height: '30%',
             }} 
           />
 
@@ -603,57 +463,57 @@ const HomeScreen = () => {
           
           {/* Stomach Label (1st from left) */}
           <TouchableOpacity
-            style={[styles.touchArea, { top: '78%', left: '2%', width: '14%', height: '12%' }]}
+            style={[styles.touchArea, { top: '80%', left: '0%', width: '14%', height: '10%' }]}
             onPress={() => handleBodyPartPress('stomach')}
             activeOpacity={0.6}
           />
 
           {/* Heart Label (2nd from left) */}
           <TouchableOpacity
-            style={[styles.touchArea, { top: '78%', left: '18%', width: '14%', height: '12%' }]}
+            style={[styles.touchArea, { top: '80%', left: '14%', width: '14%', height: '10%' }]}
             onPress={() => handleBodyPartPress('heart')}
             activeOpacity={0.6}
           />
 
           {/* Hair Label (3rd from left - center left) */}
           <TouchableOpacity
-            style={[styles.touchArea, { top: '78%', left: '34%', width: '14%', height: '12%' }]}
+            style={[styles.touchArea, { top: '80%', left: '28%', width: '14%', height: '10%' }]}
             onPress={() => handleBodyPartPress('hair')}
             activeOpacity={0.6}
           />
 
           {/* Skin Label (4th from left) */}
           <TouchableOpacity
-            style={[styles.touchArea, { top: '78%', left: '46%', width: '12%', height: '12%' }]}
+            style={[styles.touchArea, { top: '80%', left: '42%', width: '14%', height: '10%' }]}
             onPress={() => handleBodyPartPress('skin')}
             activeOpacity={0.6}
           />
 
           {/* Muscle Label (5th from left) */}
           <TouchableOpacity
-            style={[styles.touchArea, { top: '78%', left: '58%', width: '12%', height: '12%' }]}
+            style={[styles.touchArea, { top: '80%', left: '56%', width: '14%', height: '10%' }]}
             onPress={() => handleBodyPartPress('muscle')}
             activeOpacity={0.6}
           />
 
           {/* Sexual Health Label (6th from left) */}
           <TouchableOpacity
-            style={[styles.touchArea, { top: '78%', left: '70%', width: '12%', height: '12%' }]}
+            style={[styles.touchArea, { top: '80%', left: '70%', width: '14%', height: '10%' }]}
             onPress={() => handleBodyPartPress('sexual')}
             activeOpacity={0.6}
           />
 
           {/* Nootropics/Brain Label (7th - far right) */}
           <TouchableOpacity
-            style={[styles.touchArea, { top: '78%', left: '82%', width: '14%', height: '12%' }]}
+            style={[styles.touchArea, { top: '80%', left: '84%', width: '16%', height: '10%' }]}
             onPress={() => handleBodyPartPress('brain')}
             activeOpacity={0.6}
           />
         </View>
       </View>
 
-      </ScrollView>
-
+      {/* Header Overlay - Removed as per request */}
+      
       {/* Body Part Modal */}
       <BodyPartModal
         visible={modalVisible}
@@ -661,7 +521,7 @@ const HomeScreen = () => {
         onClose={() => setModalVisible(false)}
         onViewProducts={handleViewProducts}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -695,16 +555,17 @@ const styles = StyleSheet.create({
     color: '#888',
   },
   bodyContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 0,
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1,
   },
   imageWrapper: {
+    flex: 1,
     position: 'relative',
     zIndex: 10,
     backgroundColor: 'transparent',
   },
   bodyImage: {
+    ...StyleSheet.absoluteFillObject,
     width: '100%',
     height: '100%',
   },

@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
   Animated,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Svg, { Path, Circle, Ellipse, Rect } from 'react-native-svg';
@@ -104,86 +105,79 @@ const BicepIcon = ({ size = 50, color = '#9B59B6' }) => (
     />
   </Svg>
 );
-
-// Realistic Stomach Icon for Fat Loss
 const StomachIcon = ({ size = 55 }) => (
   <Svg width={size} height={size} viewBox="0 0 60 60">
-    {/* Esophagus tube */}
+
+    {/* Main stomach body */}
     <Path
-      d="M 18 2 Q 16 4, 16 8 L 16 14 Q 16 18, 20 20"
-      fill="none"
-      stroke="#C0392B"
-      strokeWidth="5"
-      strokeLinecap="round"
-    />
-    <Path
-      d="M 18 2 Q 16 4, 16 8 L 16 14 Q 16 18, 20 20"
-      fill="none"
-      stroke="#E57373"
-      strokeWidth="3"
-      strokeLinecap="round"
-    />
-    {/* Main stomach body - realistic J-shape */}
-    <Path
-      d="M 20 16 
-         C 8 16, 4 26, 6 38 
-         C 8 50, 20 56, 34 54 
-         C 48 52, 54 42, 52 32
-         C 50 22, 42 18, 36 20
-         C 30 22, 30 28, 34 32
-         C 38 36, 44 32, 46 26
-         C 46 22, 42 18, 36 18
-         C 30 18, 26 16, 20 16
+      d="M 24 12
+         C 20 10, 14 12, 11 17
+         C 8 22, 8 30, 10 38
+         C 12 44, 17 50, 25 51
+         C 33 52, 42 48, 47 41
+         C 52 34, 51 24, 46 18
+         C 41 13, 33 11, 27 12
+         L 24 12
          Z"
-      fill="#E57373"
-      stroke="#C0392B"
+      fill="#F0A0A0"
+      stroke="#D97070"
       strokeWidth="1.5"
     />
-    {/* Stomach inner curve - greater curvature */}
+
+    {/* Right side bulge highlight */}
     <Path
-      d="M 12 32 Q 20 40, 32 44 Q 42 46, 48 38"
+      d="M 38 14 C 46 18, 50 28, 46 38"
       fill="none"
-      stroke="#EF9A9A"
+      stroke="#FAC8C8"
       strokeWidth="3"
       strokeLinecap="round"
-      opacity="0.8"
+      opacity="0.7"
     />
-    {/* Stomach folds/rugae */}
+
+    {/* Inner top highlight curve */}
     <Path
-      d="M 14 28 Q 22 26, 30 30"
+      d="M 15 22 Q 26 14, 38 18"
       fill="none"
-      stroke="#C0392B"
-      strokeWidth="1.5"
-      opacity="0.5"
-    />
-    <Path
-      d="M 16 38 Q 26 36, 38 40"
-      fill="none"
-      stroke="#C0392B"
-      strokeWidth="1.5"
-      opacity="0.4"
-    />
-    <Path
-      d="M 20 46 Q 30 44, 40 48"
-      fill="none"
-      stroke="#C0392B"
-      strokeWidth="1.2"
-      opacity="0.3"
-    />
-    {/* Highlight/shine */}
-    <Path
-      d="M 14 24 Q 18 22, 24 24"
-      fill="none"
-      stroke="#FFCDD2"
-      strokeWidth="2.5"
+      stroke="#FDD8D8"
+      strokeWidth="3"
       strokeLinecap="round"
-      opacity="0.8"
+      opacity="0.9"
     />
-    {/* Pylorus (lower opening) */}
-    <Ellipse cx="46" cy="36" rx="4" ry="3" fill="#C0392B" opacity="0.6" />
+
+    {/* Esophagus - left side opening, goes up-left */}
+    <Path
+      d="M 24 12 C 22 8, 18 5, 15 3"
+      fill="none"
+      stroke="#D97070"
+      strokeWidth="5.5"
+      strokeLinecap="round"
+    />
+    <Path
+      d="M 24 12 C 22 8, 18 5, 15 3"
+      fill="none"
+      stroke="#F0A0A0"
+      strokeWidth="3.5"
+      strokeLinecap="round"
+    />
+
+    {/* Pylorus - bottom right small exit nub */}
+    <Path
+      d="M 44 42 C 48 46, 48 51, 45 53"
+      fill="none"
+      stroke="#D97070"
+      strokeWidth="4.5"
+      strokeLinecap="round"
+    />
+    <Path
+      d="M 44 42 C 48 46, 48 51, 45 53"
+      fill="none"
+      stroke="#F0A0A0"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+    />
+
   </Svg>
 );
-
 // Hair Icon - Hair strands/follicle
 const HairIcon = ({ size = 55 }) => (
   <Svg width={size} height={size} viewBox="0 0 60 60">

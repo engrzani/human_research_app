@@ -37,30 +37,10 @@ const LoginScreen = ({ navigation }) => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const routeAuthenticatedUser = async () => {
-      if (authLoading || !isAuthenticated) return;
-
-      try {
-        const onboardingSeen = await AsyncStorage.getItem(ONBOARDING_SEEN_KEY);
-        const disclaimerAccepted = await AsyncStorage.getItem(DISCLAIMER_ACCEPTED_KEY);
-
-        if (onboardingSeen !== 'true') {
-          navigation.replace('Onboarding');
-          return;
-        }
-
-        if (disclaimerAccepted !== 'true') {
-          navigation.replace('Disclaimer');
-          return;
-        }
-
-        navigation.replace('MainApp');
-      } catch (error) {
-        navigation.replace('Onboarding');
-      }
-    };
-
-    routeAuthenticatedUser();
+    // If user is already authenticated, go to splash screen
+    if (!authLoading && isAuthenticated) {
+      navigation.replace('Splash');
+    }
   }, [isAuthenticated, authLoading, navigation]);
 
   const updateField = (field, value) => {
@@ -115,12 +95,8 @@ const LoginScreen = ({ navigation }) => {
       
       if (result.success) {
         await signIn(result.user);
-        const onboardingSeen = await AsyncStorage.getItem(ONBOARDING_SEEN_KEY);
-        if (onboardingSeen === 'true') {
-          navigation.replace('Disclaimer');
-        } else {
-          navigation.replace('Onboarding');
-        }
+        // After successful login/signup, show splash screen with beaker gif
+        navigation.replace('Splash');
       } else {
         Alert.alert('Error', result.error || 'Authentication failed');
       }

@@ -112,6 +112,7 @@ const SearchScreen = ({ navigation }) => {
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [sortBy, setSortBy] = useState('Name');
   const [showFilters, setShowFilters] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
 
   // Categories for filter - matching all product categories
   const categories = [
@@ -199,36 +200,40 @@ const SearchScreen = ({ navigation }) => {
           </View>
           <TouchableOpacity 
             style={styles.filterButton}
-            onPress={() => setShowFilters(!showFilters)}
+            onPress={() => setShowCategories(!showCategories)}
           >
             <Ionicons name="options" size={22} color="#fff" />
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.quickLabel}>Categories</Text>
-        <View style={styles.categoryGrid}>
-          {categories.map((cat) => (
-            <TouchableOpacity
-              key={cat.id}
-              style={[
-                styles.categoryChip,
-                selectedCategory === cat.id && styles.categoryChipSelected
-              ]}
-              onPress={() => {
-                setSelectedCategory(cat.id);
-                setSelectedSubcategory(null);
-              }}
-              activeOpacity={0.8}
-            >
-              <Text style={[
-                styles.categoryChipText,
-                selectedCategory === cat.id && styles.categoryChipTextSelected
-              ]}>
-                {cat.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {showCategories && (
+          <>
+            <Text style={styles.quickLabel}>Categories</Text>
+            <View style={styles.categoryGrid}>
+              {categories.map((cat) => (
+                <TouchableOpacity
+                  key={cat.id}
+                  style={[
+                    styles.categoryChip,
+                    selectedCategory === cat.id && styles.categoryChipSelected
+                  ]}
+                  onPress={() => {
+                    setSelectedCategory(cat.id);
+                    setSelectedSubcategory(null);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[
+                    styles.categoryChipText,
+                    selectedCategory === cat.id && styles.categoryChipTextSelected
+                  ]}>
+                    {cat.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
       </View>
 
       {/* Filter Panel */}

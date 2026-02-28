@@ -35,16 +35,21 @@ export const AuthProvider = ({ children }) => {
         if (auth) {
           unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
             if (firebaseUser) {
-              const userData = {
-                uid: firebaseUser.uid,
-                email: firebaseUser.email,
-                displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0],
-              };
-              setUser(userData);
-              setIsAuthenticated(true);
-              await AsyncStorage.setItem('user', JSON.stringify(userData));
+              // Only auto-login if user was already cached in AsyncStorage
+              // This prevents Firebase persistence from bypassing onboarding
+              const cached = await AsyncStorage.getItem('user');
+              if (cached) {
+                const userData = {
+                  uid: firebaseUser.uid,
+                  email: firebaseUser.email,
+                  displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0],
+                };
+                setUser(userData);
+                setIsAuthenticated(true);
+                await AsyncStorage.setItem('user', JSON.stringify(userData));
+              }
             } else {
-              // Only clear if we don't have cached user
+              // Firebase says no user
               const cached = await AsyncStorage.getItem('user');
               if (!cached) {
                 setUser(null);
@@ -82,9 +87,8 @@ export const AuthProvider = ({ children }) => {
         await firebaseSignOut(auth);
       }
       await AsyncStorage.removeItem('user');
-      await AsyncStorage.removeItem('disclaimerAccepted');
-      await AsyncStorage.removeItem('@human_research_disclaimer_accepted_v2');
-      await AsyncStorage.removeItem('@human_research_onboarding_seen');
+      // Don't remove age verification - user shouldn't have to re-verify age
+      // await AsyncStorage.removeItem('@peptify_age_verified');
       setUser(null);
       setIsAuthenticated(false);
     } catch (error) {
