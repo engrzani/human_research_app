@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "Peptfied",
-    "slug": "peptfied-app",
+    "name": "Peptify",
+    "slug": "human-research-app",
+    "scheme": "peptfied",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -17,7 +18,12 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.peptfiedapp",
-      "buildNumber": "1.0.0"
+      "buildNumber": "2",
+      "infoPlist": {
+        "NSCameraUsageDescription": "This app does not require camera access.",
+        "NSPhotoLibraryUsageDescription": "This app does not require photo library access.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.peptfiedapp",
@@ -34,13 +40,16 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      "expo-video",
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "owner": "zeenatumer",
     "extra": {
       "eas": {
         "projectId": "c8048311-12fc-4450-8c12-fdc7e31dc5a5"
       }
-    },
-    "plugins": [
-      "expo-video"
-    ]
+    }
   }
 }

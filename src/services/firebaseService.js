@@ -15,8 +15,16 @@ import {
   createUserWithEmailAndPassword,
   sendPasswordResetEmail,
   updateProfile,
+  GoogleAuthProvider,
+  OAuthProvider,
+  signInWithCredential,
 } from 'firebase/auth';
-import { db, auth } from '../config/firebase';
+import { auth } from '../config/firebase';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as Crypto from 'expo-crypto';
+
+// Firestore is not configured — all db operations are skipped
+const db = null;
 
 // Auth Service
 export const AuthService = {
@@ -158,6 +166,135 @@ export const AuthService = {
       }
       
       return { success: false, error: errorMessage };
+    }
+  },
+
+  // Sign in with Google
+  async signInWithGoogle() {
+    try {
+      // Use expo-auth-session Google provider
+      const { makeRedirectUri } = require('expo-auth-session');
+      const redirectUri = makeRedirectUri({ useProxy: true });
+
+      const discovery = {
+        authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+        tokenEndpoint: 'https://oauth2.googleapis.com/token',
+      };
+
+      const { AuthSession } = require('expo-auth-session');
+      // For Expo managed workflow, use promptAsync approach
+      // This is a simplified version - in production you'd use the hook in the component
+      const result = await AuthSession?.startAsync?.({
+        authUrl:
+          `https://accounts.google.com/o/oauth2/v2/auth?` +
+          `client_id=312317016332-YOUR_WEB_CLIENT_ID.apps.googleusercontent.com` +
+          `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+          `&response_type=id_token` +
+          `&scope=openid%20profile%20email`,
+      });
+
+      if (result?.type === 'success') {
+        const { id_token } = result.params;
+        const credential = GoogleAuthProvider.credential(id_token);
+        const userCredential = await signInWithCredential(auth, credential);
+
+        if (db) {
+          const userDocRef = doc(db, 'users', userCredential.user.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (!userDoc.exists()) {
+            await setDoc(userDocRef, {
+              email: userCredential.user.email,
+              displayName: userCredential.user.displayName || '',
+              createdAt: new Date().toISOString(),
+              provider: 'google',
+            });
+          }
+        }
+
+        return {
+          success: true,
+          user: {
+            uid: userCredential.user.uid,
+            email: userCredential.user.email,
+            displayName: userCredential.user.displayName || userCredential.user.email?.split('@')[0],
+          },
+        };
+      }
+
+      return { success: false, error: 'cancelled' };
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      return { success: false, error: error.message || 'Google sign-in failed' };
+    }
+  },
+
+  // Sign in with Apple
+  async signInWithApple() {
+    try {
+      const nonce = Math.random().toString(36).substring(2, 10);
+      const hashedNonce = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256,
+        nonce
+      );
+
+      const appleCredential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+        nonce: hashedNonce,
+      });
+
+      const { identityToken } = appleCredential;
+      if (!identityToken) {
+        return { success: false, error: 'No identity token received from Apple' };
+      }
+
+      const provider = new OAuthProvider('apple.com');
+      const credential = provider.credential({
+        idToken: identityToken,
+        rawNonce: nonce,
+      });
+
+      const userCredential = await signInWithCredential(auth, credential);
+
+      // Apple may only return name on first sign-in
+      const displayName =
+        appleCredential.fullName
+          ? `${appleCredential.fullName.givenName || ''} ${appleCredential.fullName.familyName || ''}`.trim()
+          : userCredential.user.displayName || '';
+
+      if (displayName && !userCredential.user.displayName) {
+        await updateProfile(userCredential.user, { displayName });
+      }
+
+      if (db) {
+        const userDocRef = doc(db, 'users', userCredential.user.uid);
+        const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists()) {
+          await setDoc(userDocRef, {
+            email: userCredential.user.email || appleCredential.email || '',
+            displayName: displayName,
+            createdAt: new Date().toISOString(),
+            provider: 'apple',
+          });
+        }
+      }
+
+      return {
+        success: true,
+        user: {
+          uid: userCredential.user.uid,
+          email: userCredential.user.email || appleCredential.email || '',
+          displayName: displayName || 'User',
+        },
+      };
+    } catch (error) {
+      console.error('Apple sign-in error:', error);
+      if (error.code === 'ERR_REQUEST_CANCELED') {
+        return { success: false, error: 'cancelled' };
+      }
+      return { success: false, error: error.message || 'Apple sign-in failed' };
     }
   },
 };

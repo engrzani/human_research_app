@@ -1,0 +1,24 @@
+# Node binary (not needed for build)
+node-v20.11.0-win-x64/
+
+# Backend (Python server, not needed for mobile app)
+backend/
+
+# Dependencies (EAS will install these)
+node_modules/
+
+# Expo cache
+.expo/
+.expo-shared/
+
+# Build outputs
+dist/
+web-build/
+
+# Debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# Git
+.git/

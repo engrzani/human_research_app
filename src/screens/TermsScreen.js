@@ -107,7 +107,7 @@ const TermsScreen = ({ navigation }) => {
 
         <Text style={styles.sectionTitle}>12. Contact</Text>
         <Text style={styles.paragraph}>
-          For questions regarding these Terms, contact: support@yourdomain.com
+          For questions regarding these Terms, contact: support@peptfied.org
         </Text>
 
         <View style={styles.bottomSpacer} />

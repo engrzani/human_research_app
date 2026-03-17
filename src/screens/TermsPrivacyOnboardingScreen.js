@@ -24,8 +24,8 @@ const TermsPrivacyOnboardingScreen = ({ navigation }) => {
     } catch (error) {
       console.log('Error saving terms acceptance:', error);
     }
-    // After accepting terms/privacy, go to Login.
-    navigation.replace('Login');
+    // After accepting terms/privacy, show beaker screen
+    navigation.replace('Splash');
   };
 
   // Terms & Conditions Modal Content
@@ -228,7 +228,7 @@ const TermsPrivacyOnboardingScreen = ({ navigation }) => {
               Terms & Conditions
             </Text>
             {' '}and{' '}
-            <Text style={styles.link} onPress={() => setShowPrivacy(true)}>
+            <Text style={styles.link} onPress={() => navigation.navigate('Privacy')}>
               Privacy Policy
             </Text>
             .

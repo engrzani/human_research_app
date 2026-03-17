@@ -12,10 +12,22 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
-import { CommonActions } from '@react-navigation/native';
+import { useCart } from '../context/CartContext';
+import { deleteUser } from 'firebase/auth';
+import { auth } from '../config/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = ({ navigation }) => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAuthenticated } = useAuth();
+  const { clearCart } = useCart();
+
+  // signOut keeps disclaimer flags — user returns to Login screen only
+  // deleteAccount clears all flags — full restart from AgeGate
+
+  const handleSignIn = () => {
+    const rootNav = navigation.getParent()?.getParent() || navigation;
+    rootNav.navigate('Login');
+  };
 
   const handleSignOut = () => {
     Alert.alert(
@@ -27,13 +39,8 @@ const ProfileScreen = ({ navigation }) => {
           text: 'Sign Out', 
           style: 'destructive',
           onPress: async () => {
+            clearCart();
             await signOut();
-            navigation.dispatch(
-              CommonActions.reset({
-                index: 0,
-                routes: [{ name: 'Login' }],
-              })
-            );
           }
         },
       ]
@@ -49,9 +56,28 @@ const ProfileScreen = ({ navigation }) => {
         { 
           text: 'Delete', 
           style: 'destructive',
-          onPress: () => {
-            // Placeholder for delete account functionality
-            Alert.alert('Contact Support', 'Please contact support@yourdomain.com to delete your account.');
+          onPress: async () => {
+            try {
+              const currentUser = auth?.currentUser;
+              if (currentUser) {
+                await deleteUser(currentUser);
+              }
+              // Clear all onboarding flags so user restarts from AgeGate
+              await AsyncStorage.multiRemove([
+                '@peptify_age_verified',
+                '@peptify_disclaimer_acknowledged',
+                '@peptify_terms_accepted',
+                '@peptify_v3_migrated',
+              ]);
+              clearCart();
+              await signOut();
+            } catch (error) {
+              if (error.code === 'auth/requires-recent-login') {
+                Alert.alert('Re-authentication Required', 'Please sign out, sign back in, and try again.');
+              } else {
+                Alert.alert('Error', 'Failed to delete account. Please contact support@peptfied.org.');
+              }
+            }
           }
         },
       ]
@@ -82,14 +108,49 @@ const ProfileScreen = ({ navigation }) => {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Account</Text>
-        <Text style={styles.headerSubtitle}>Signed in via Email</Text>
+        <Text style={styles.headerSubtitle}>
+          {isAuthenticated ? 'Signed in via Email' : 'Not signed in'}
+        </Text>
       </View>
 
+      {!isAuthenticated ? (
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.guestContainer}>
+            <Ionicons name="person-circle-outline" size={64} color="#444" />
+            <Text style={styles.guestTitle}>Sign in to manage your account</Text>
+            <Text style={styles.guestSubtitle}>
+              Create an account to save your research list and preferences across devices.
+            </Text>
+            <TouchableOpacity
+              style={styles.signInButton}
+              onPress={handleSignIn}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.signInButtonText}>Sign In / Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Legal — always accessible */}
+          <Text style={[styles.sectionHeader, { marginTop: 30 }]}>LEGAL</Text>
+          <View style={styles.sectionGroup}>
+            <SettingsRow 
+              label="Terms of Use" 
+              onPress={() => navigation.navigate('Terms')}
+            />
+            <View style={styles.separator} />
+            <SettingsRow 
+              label="Privacy Policy" 
+              onPress={() => navigation.navigate('Privacy')}
+            />
+          </View>
+          <View style={styles.bottomSpacer} />
+        </ScrollView>
+      ) : (
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Email Section */}
         <View style={styles.section}>
           <Text style={styles.emailLabel}>Email</Text>
-          <Text style={styles.emailValue}>{user?.email || 'johndoe@email.com'}</Text>
+          <Text style={styles.emailValue}>{user?.email || 'Not signed in'}</Text>
         </View>
 
         {/* Sign-In Method & Change Password */}
@@ -158,6 +219,7 @@ const ProfileScreen = ({ navigation }) => {
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
+      )}
     </SafeAreaView>
   );
 };
@@ -261,6 +323,39 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 40,
+  },
+  guestContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 10,
+  },
+  guestTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#fff',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  guestSubtitle: {
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 20,
+    paddingHorizontal: 20,
+  },
+  signInButton: {
+    backgroundColor: '#1abc9c',
+    paddingVertical: 14,
+    paddingHorizontal: 40,
+    borderRadius: 10,
+    marginTop: 24,
+  },
+  signInButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });
 

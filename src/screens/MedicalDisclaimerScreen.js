@@ -8,10 +8,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MedicalDisclaimerScreen = ({ navigation }) => {
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    await AsyncStorage.setItem('@peptify_disclaimer_acknowledged', 'true');
     navigation.replace('TermsPrivacyOnboarding');
   };
 

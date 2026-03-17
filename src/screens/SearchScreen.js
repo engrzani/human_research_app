@@ -106,13 +106,21 @@ const ProductItem = memo(({ item, navigation, index }) => {
   );
 });
 
-const SearchScreen = ({ navigation }) => {
+const SearchScreen = ({ navigation, route }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState(route?.params?.initialCategory || 'All');
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [sortBy, setSortBy] = useState('Name');
   const [showFilters, setShowFilters] = useState(false);
   const [showCategories, setShowCategories] = useState(false);
+
+  // Update category when navigated with initialCategory param
+  useEffect(() => {
+    if (route?.params?.initialCategory) {
+      setSelectedCategory(route.params.initialCategory);
+      setSelectedSubcategory(null);
+    }
+  }, [route?.params?.initialCategory]);
 
   // Categories for filter - matching all product categories
   const categories = [
@@ -161,6 +169,15 @@ const SearchScreen = ({ navigation }) => {
         (p.casNumber && p.casNumber.toLowerCase().includes(query))
       );
     }
+
+    // Deduplicate by compound name (keep first occurrence)
+    const seen = new Set();
+    filtered = filtered.filter(p => {
+      const key = p.name.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 
     // Sort
     switch (sortBy) {

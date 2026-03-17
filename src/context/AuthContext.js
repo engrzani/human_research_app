@@ -86,9 +86,10 @@ export const AuthProvider = ({ children }) => {
       if (auth) {
         await firebaseSignOut(auth);
       }
-      await AsyncStorage.removeItem('user');
-      // Don't remove age verification - user shouldn't have to re-verify age
-      // await AsyncStorage.removeItem('@peptify_age_verified');
+      // Clear auth data only — disclaimer acknowledgments are device-level
+      await AsyncStorage.multiRemove([
+        'user',
+      ]);
       setUser(null);
       setIsAuthenticated(false);
     } catch (error) {

@@ -1,0 +1,1128 @@
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  StatusBar,
+  Platform,
+  Image,
+  Dimensions,
+  Animated,
+  Easing,
+  ScrollView,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import Svg, { Path, Circle, Ellipse, Rect } from 'react-native-svg';
+import { useCart } from '../context/CartContext';
+import { getCategoryInfo } from '../data/products';
+import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../context/AuthContext';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Map body parts to product categories
+const BODY_PART_TO_CATEGORY = {
+  brain: 'brain',
+  hair: 'hair',
+  stomach: 'fatLoss',
+  muscle: 'muscle',
+  heart: 'heart',
+  skin: 'skin',
+  sexual: 'sexual',
+};
+
+// Inline SVG icons for the category card
+const CardHeartIcon = ({ size = 28, color = '#E74C3C' }) => (
+  <Svg width={size} height={size} viewBox="0 0 50 50">
+    <Path
+      d="M 25 15 C 25 10, 15 5, 8 12 C 0 20, 0 30, 10 40 L 25 48 L 40 40 C 50 30, 50 20, 42 12 C 35 5, 25 10, 25 15 Z"
+      fill={color} stroke="#C0392B" strokeWidth="1.5"
+    />
+  </Svg>
+);
+
+const CardBrainIcon = ({ size = 28, color = '#E91E63' }) => (
+  <Svg width={size} height={size} viewBox="0 0 50 50">
+    <Path
+      d="M 15 12 C 8 12, 5 18, 7 26 C 3 28, 5 38, 12 40 C 16 46, 34 46, 38 40 C 45 38, 47 28, 43 26 C 45 18, 42 12, 35 12 C 30 8, 20 8, 15 12 Z"
+      fill={color} stroke="#C2185B" strokeWidth="1.5"
+    />
+  </Svg>
+);
+
+const CardBicepIcon = ({ size = 28, color = '#9B59B6' }) => (
+  <Svg width={size} height={size} viewBox="0 0 50 50">
+    <Path
+      d="M 8 18 C 2 22, 2 32, 10 38 C 15 42, 25 42, 32 38 C 42 32, 42 22, 35 18 C 28 14, 15 14, 8 18 Z"
+      fill={color} stroke="#8E44AD" strokeWidth="1.5"
+    />
+  </Svg>
+);
+
+const CardStomachIcon = ({ size = 28, color = '#E57373' }) => (
+  <Svg width={size} height={size} viewBox="0 0 60 60">
+    <Path
+      d="M 24 12 C 20 10, 14 12, 11 17 C 8 22, 8 30, 10 38 C 12 44, 17 50, 25 51 C 33 52, 42 48, 47 41 C 52 34, 51 24, 46 18 C 41 13, 33 11, 27 12 L 24 12 Z"
+      fill={color} stroke="#D97070" strokeWidth="1.5"
+    />
+  </Svg>
+);
+
+const CardSkinIcon = ({ size = 28, color = '#FFD700' }) => (
+  <Svg width={size} height={size} viewBox="0 0 50 50">
+    <Path
+      d="M 25 10 L 28 20 L 38 20 L 30 27 L 33 38 L 25 31 L 17 38 L 20 27 L 12 20 L 22 20 Z"
+      fill="#FFF176" stroke={color} strokeWidth="1"
+    />
+  </Svg>
+);
+
+const CardHairIcon = ({ size = 28, color = '#8B4513' }) => (
+  <Svg width={size} height={size} viewBox="0 0 60 60">
+    <Path
+      d="M 30 52 Q 28 45, 30 38 Q 32 30, 28 22 Q 24 14, 28 6 Q 30 2, 32 6 Q 36 14, 32 22 Q 28 30, 30 38 Q 32 45, 30 52"
+      fill={color} stroke="#3E2723" strokeWidth="1"
+    />
+    <Path d="M 22 54 Q 18 46, 20 38 Q 22 28, 18 18 Q 16 10, 18 4" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" />
+    <Path d="M 38 54 Q 42 46, 40 38 Q 38 28, 42 18 Q 44 10, 42 4" fill="none" stroke={color} strokeWidth="4" strokeLinecap="round" />
+  </Svg>
+);
+
+const CardSexualIcon = ({ size = 28, color = '#FF69B4' }) => (
+  <Svg width={size} height={size} viewBox="0 0 50 50">
+    <Path
+      d="M 25 18 C 25 15, 20 12, 16 16 C 12 20, 12 26, 18 32 L 25 38 L 32 32 C 38 26, 38 20, 34 16 C 30 12, 25 15, 25 18 Z"
+      fill={color} stroke="#E91E63" strokeWidth="1"
+    />
+  </Svg>
+);
+
+// Category info for the inline bottom card
+const CATEGORY_CARD_INFO = {
+  brain: {
+    name: 'Nootropics',
+    description: 'Tap to view compounds',
+    Icon: CardBrainIcon,
+    color: '#E91E63',
+  },
+  hair: {
+    name: 'Hair Growth',
+    description: 'Tap to view compounds',
+    Icon: CardHairIcon,
+    color: '#8B4513',
+  },
+  stomach: {
+    name: 'Fat Loss',
+    description: 'Tap to view compounds',
+    Icon: CardStomachIcon,
+    color: '#E57373',
+  },
+  muscle: {
+    name: 'Muscle Building',
+    description: 'Tap to view compounds',
+    Icon: CardBicepIcon,
+    color: '#9B59B6',
+  },
+  heart: {
+    name: 'Endurance / Longevity',
+    description: 'Tap to view compounds',
+    Icon: CardHeartIcon,
+    color: '#E74C3C',
+  },
+  skin: {
+    name: 'Skin Health',
+    description: 'Tap to view compounds',
+    Icon: CardSkinIcon,
+    color: '#FFD700',
+  },
+  sexual: {
+    name: 'Sexual Health',
+    description: 'Tap to view compounds',
+    Icon: CardSexualIcon,
+    color: '#FF69B4',
+  },
+};
+
+const HomeScreen = () => {
+  const navigation = useNavigation();
+  const { cartItemCount } = useCart();
+  const { isAuthenticated } = useAuth();
+  const [selectedBodyPart, setSelectedBodyPart] = useState(null);
+
+  // Animation refs for each body part
+  const brainAnim = useRef(new Animated.Value(1)).current;
+  const hairAnim = useRef(new Animated.Value(1)).current;
+  const stomachAnim = useRef(new Animated.Value(1)).current;
+  const muscleAnim = useRef(new Animated.Value(1)).current;
+  const heartAnim = useRef(new Animated.Value(1)).current;
+  const skinGlowAnim = useRef(new Animated.Value(0.3)).current;
+  const skinPulseAnim = useRef(new Animated.Value(1)).current;
+  const sexualGlowAnim = useRef(new Animated.Value(0.3)).current;
+  const sexualPulseAnim = useRef(new Animated.Value(1)).current;
+  
+  // Active animation states
+  const [activeAnimations, setActiveAnimations] = useState({});
+
+  // Persistent glow animations for bicep and pelvic spots
+  const bicepGlowAnim = useRef(new Animated.Value(0.4)).current;
+  const pelvicGlowAnim = useRef(new Animated.Value(0.4)).current;
+
+  useEffect(() => {
+    const bicepLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bicepGlowAnim, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(bicepGlowAnim, { toValue: 0.4, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    );
+    const pelvicLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pelvicGlowAnim, { toValue: 1, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(pelvicGlowAnim, { toValue: 0.4, duration: 1200, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    );
+    bicepLoop.start();
+    pelvicLoop.start();
+    return () => { bicepLoop.stop(); pelvicLoop.stop(); };
+  }, []);
+
+  // Image dimensions - calculate aspect ratio for proper fit
+  // Use contain to prevent stretching/cropping
+  const imageWidth = screenWidth;
+  const imageHeight = screenHeight;
+
+  // Animation functions
+  const playBrainPop = () => {
+    setActiveAnimations(prev => ({ ...prev, brain: true }));
+    Animated.sequence([
+      Animated.timing(brainAnim, {
+        toValue: 1.4,
+        duration: 150,
+        easing: Easing.out(Easing.back(2)),
+        useNativeDriver: true,
+      }),
+      Animated.timing(brainAnim, {
+        toValue: 1,
+        duration: 200,
+        easing: Easing.bounce,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setActiveAnimations(prev => ({ ...prev, brain: false })));
+  };
+
+  const playHairPop = () => {
+    setActiveAnimations(prev => ({ ...prev, hair: true }));
+    Animated.sequence([
+      Animated.timing(hairAnim, {
+        toValue: 1.3,
+        duration: 120,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(hairAnim, {
+        toValue: 1,
+        duration: 180,
+        easing: Easing.bounce,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setActiveAnimations(prev => ({ ...prev, hair: false })));
+  };
+
+  const playStomachPop = () => {
+    setActiveAnimations(prev => ({ ...prev, stomach: true }));
+    Animated.sequence([
+      Animated.timing(stomachAnim, {
+        toValue: 1.35,
+        duration: 150,
+        easing: Easing.out(Easing.back(2)),
+        useNativeDriver: true,
+      }),
+      Animated.timing(stomachAnim, {
+        toValue: 1,
+        duration: 200,
+        easing: Easing.bounce,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setActiveAnimations(prev => ({ ...prev, stomach: false })));
+  };
+
+  const playMuscleFlex = () => {
+    setActiveAnimations(prev => ({ ...prev, muscle: true }));
+    Animated.sequence([
+      Animated.timing(muscleAnim, {
+        toValue: 1.25,
+        duration: 200,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(muscleAnim, {
+        toValue: 1.15,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(muscleAnim, {
+        toValue: 1.3,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(muscleAnim, {
+        toValue: 1,
+        duration: 250,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start(() => setActiveAnimations(prev => ({ ...prev, muscle: false })));
+  };
+
+  const playHeartBeat = () => {
+    setActiveAnimations(prev => ({ ...prev, heart: true }));
+    Animated.sequence([
+      Animated.timing(heartAnim, {
+        toValue: 1.3,
+        duration: 100,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.timing(heartAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(heartAnim, {
+        toValue: 1.25,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(heartAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.delay(100),
+      Animated.timing(heartAnim, {
+        toValue: 1.3,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(heartAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(heartAnim, {
+        toValue: 1.25,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(heartAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => setActiveAnimations(prev => ({ ...prev, heart: false })));
+  };
+
+  const playSkinGlow = () => {
+    setActiveAnimations(prev => ({ ...prev, skin: true }));
+    Animated.parallel([
+      Animated.sequence([
+        Animated.timing(skinGlowAnim, {
+          toValue: 1,
+          duration: 300,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(skinGlowAnim, {
+          toValue: 0.5,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(skinGlowAnim, {
+          toValue: 0.9,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(skinGlowAnim, {
+          toValue: 0.3,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.sequence([
+        Animated.timing(skinPulseAnim, {
+          toValue: 1.5,
+          duration: 400,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(skinPulseAnim, {
+          toValue: 1.2,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(skinPulseAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start(() => setActiveAnimations(prev => ({ ...prev, skin: false })));
+  };
+
+  const playSexualGlow = () => {
+    setActiveAnimations(prev => ({ ...prev, sexual: true }));
+    Animated.parallel([
+      Animated.sequence([
+        Animated.timing(sexualGlowAnim, {
+          toValue: 1,
+          duration: 250,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(sexualGlowAnim, {
+          toValue: 0.6,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sexualGlowAnim, {
+          toValue: 0.9,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sexualGlowAnim, {
+          toValue: 0.3,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.sequence([
+        Animated.timing(sexualPulseAnim, {
+          toValue: 1.4,
+          duration: 350,
+          easing: Easing.out(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(sexualPulseAnim, {
+          toValue: 1,
+          duration: 450,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start(() => setActiveAnimations(prev => ({ ...prev, sexual: false })));
+  };
+
+  const handleBodyPartPress = (bodyPart) => {
+    // Play animation based on body part
+    switch (bodyPart) {
+      case 'brain':
+        playBrainPop();
+        break;
+      case 'hair':
+        playHairPop();
+        break;
+      case 'stomach':
+        playStomachPop();
+        break;
+      case 'muscle':
+        playMuscleFlex();
+        break;
+      case 'heart':
+        playHeartBeat();
+        break;
+      case 'skin':
+        playSkinGlow();
+        break;
+      case 'sexual':
+        playSexualGlow();
+        break;
+    }
+    
+    setSelectedBodyPart(bodyPart);
+  };
+
+
+  // Touchable area component
+  const TouchArea = ({ part, style }) => (
+    <TouchableOpacity
+      style={[styles.touchArea, style]}
+      onPress={() => handleBodyPartPress(part)}
+      activeOpacity={0.6}
+    />
+  );
+
+  const handleViewProducts = (bodyPart) => {
+    // Map body part to category
+    const category = BODY_PART_TO_CATEGORY[bodyPart] || bodyPart;
+    const categoryInfo = getCategoryInfo(category);
+    
+    // If category has subcategories, navigate to subcategory screen
+    if (categoryInfo && categoryInfo.subcategories) {
+      navigation.navigate('Subcategory', { category: category });
+    } else {
+      // Otherwise go directly to shop
+      navigation.navigate('Shop', { category: category });
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      
+      {/* Header - CATZ BANNERS */}
+      <View style={styles.headerOverlay}>
+        <Text style={styles.headerTitle}>CATZ BANNERS</Text>
+      </View>
+
+      {/* Interactive Body Image (Background) */}
+      <View style={styles.bodyContainer}>
+        <View style={styles.imageWrapper}>
+            {/* Full Body Image - body.jpeg (Background with labeled organs) */}
+            <Image
+              source={require('../../body.jpeg')}
+            style={styles.bodyImage}
+            resizeMode="cover"
+          />
+          
+          {/* === BODY PART GLOW OVERLAYS === */}
+          {/* Brain glow */}
+          {activeAnimations.brain && (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.animationOverlay,
+                {
+                  top: '7%', left: '35%', width: '30%', height: '8%',
+                  opacity: brainAnim.interpolate({ inputRange: [1, 1.4], outputRange: [0, 0.7] }),
+                  transform: [{ scale: brainAnim }],
+                },
+              ]}
+            >
+              <View style={styles.brainGlow} />
+            </Animated.View>
+          )}
+
+          {/* Hair glow */}
+          {activeAnimations.hair && (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.animationOverlay,
+                {
+                  top: '2%', left: '35%', width: '30%', height: '5%',
+                  opacity: hairAnim.interpolate({ inputRange: [1, 1.3], outputRange: [0, 0.7] }),
+                  transform: [{ scale: hairAnim }],
+                },
+              ]}
+            >
+              <View style={styles.hairGlow} />
+            </Animated.View>
+          )}
+
+          {/* Stomach glow */}
+          {activeAnimations.stomach && (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.animationOverlay,
+                {
+                  top: '28%', left: '35%', width: '30%', height: '12%',
+                  opacity: stomachAnim.interpolate({ inputRange: [1, 1.35], outputRange: [0, 0.7] }),
+                  transform: [{ scale: stomachAnim }],
+                },
+              ]}
+            >
+              <View style={styles.stomachGlow} />
+            </Animated.View>
+          )}
+
+          {/* Muscle/Bicep glow - left arm */}
+          {activeAnimations.muscle && (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.animationOverlay,
+                {
+                  top: '16%', left: '8%', width: '26%', height: '18%',
+                  opacity: muscleAnim.interpolate({ inputRange: [1, 1.3], outputRange: [0, 0.7] }),
+                  transform: [{ scale: muscleAnim }],
+                },
+              ]}
+            >
+              <View style={styles.muscleGlow} />
+            </Animated.View>
+          )}
+
+          {/* Muscle/Bicep glow - right arm */}
+          {activeAnimations.muscle && (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.animationOverlay,
+                {
+                  top: '16%', left: '66%', width: '26%', height: '18%',
+                  opacity: muscleAnim.interpolate({ inputRange: [1, 1.3], outputRange: [0, 0.7] }),
+                  transform: [{ scale: muscleAnim }],
+                },
+              ]}
+            >
+              <View style={styles.muscleGlow} />
+            </Animated.View>
+          )}
+
+          {/* Heart glow */}
+          {activeAnimations.heart && (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.animationOverlay,
+                {
+                  top: '21%', left: '40%', width: '20%', height: '7%',
+                  opacity: heartAnim.interpolate({ inputRange: [1, 1.3], outputRange: [0, 0.8] }),
+                  transform: [{ scale: heartAnim }],
+                },
+              ]}
+            >
+              <View style={styles.heartGlowEffect} />
+            </Animated.View>
+          )}
+
+          {/* Skin glow */}
+          {activeAnimations.skin && (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.animationOverlay,
+                {
+                  top: '50%', left: '22%', width: '56%', height: '30%',
+                  opacity: skinGlowAnim,
+                  transform: [{ scale: skinPulseAnim }],
+                },
+              ]}
+            >
+              <View style={styles.skinGlowOuter}>
+                <View style={styles.skinGlowInner} />
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Sexual glow */}
+          {activeAnimations.sexual && (
+            <Animated.View
+              pointerEvents="none"
+              style={[
+                styles.animationOverlay,
+                {
+                  top: '40%', left: '38%', width: '24%', height: '10%',
+                  opacity: sexualGlowAnim,
+                  transform: [{ scale: sexualPulseAnim }],
+                },
+              ]}
+            >
+              <View style={styles.sexualGlowOuter}>
+                <View style={styles.sexualGlowInner} />
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Touchable Areas - positioned relative to image */}
+          {/* Hair area - top of head only */}
+          <TouchArea 
+            part="hair" 
+            style={{
+              top: '2%',
+              left: '33%',
+              width: '34%',
+              height: '5%',
+            }} 
+          />
+
+          {/* Brain/Head area (Nootropics) - below hair, on the face/forehead */}
+          <TouchArea 
+            part="brain" 
+            style={{
+              top: '7%',
+              left: '33%',
+              width: '34%',
+              height: '8%',
+            }} 
+          />
+          
+          {/* Heart/Chest area - moved up to align with actual heart position */}
+          <TouchArea 
+            part="heart" 
+            style={{
+              top: '21%',
+              left: '40%',
+              width: '20%',
+              height: '7%',
+            }} 
+          />
+          
+          {/* Stomach/Gut area */}
+          <TouchArea 
+            part="stomach" 
+            style={{
+              top: '28%',
+              left: '35%',
+              width: '30%',
+              height: '12%',
+            }} 
+          />
+          
+          {/* Left Muscle/Arm area */}
+          <TouchArea 
+            part="muscle" 
+            style={{
+              top: '16%',
+              left: '8%',
+              width: '26%',
+              height: '22%',
+            }} 
+          />
+          
+          {/* Right Muscle/Arm area */}
+          <TouchArea 
+            part="muscle" 
+            style={{
+              top: '16%',
+              left: '66%',
+              width: '26%',
+              height: '22%',
+            }} 
+          />
+          
+          {/* Sexual/Pelvic area */}
+          <TouchArea 
+            part="sexual" 
+            style={{
+              top: '40%',
+              left: '38%',
+              width: '24%',
+              height: '10%',
+            }} 
+          />
+          
+          {/* Skin - Legs area */}
+          <TouchArea 
+            part="skin" 
+            style={{
+              top: '50%',
+              left: '22%',
+              width: '56%',
+              height: '30%',
+            }} 
+          />
+
+          {/* === IMAGE LABELS TOUCH AREAS === */}
+          {/* Labels from left to right: Stomach, Heart, Gen, Muscle, Sexual, Neurotropics */}
+          
+          {/* Stomach Label (1st from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '80%', left: '0%', width: '14%', height: '10%' }]}
+            onPress={() => handleBodyPartPress('stomach')}
+            activeOpacity={0.6}
+          />
+
+          {/* Heart Label (2nd from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '80%', left: '14%', width: '14%', height: '10%' }]}
+            onPress={() => handleBodyPartPress('heart')}
+            activeOpacity={0.6}
+          />
+
+          {/* Hair Label (3rd from left - center left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '80%', left: '28%', width: '14%', height: '10%' }]}
+            onPress={() => handleBodyPartPress('hair')}
+            activeOpacity={0.6}
+          />
+
+          {/* Skin Label (4th from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '80%', left: '42%', width: '14%', height: '10%' }]}
+            onPress={() => handleBodyPartPress('skin')}
+            activeOpacity={0.6}
+          />
+
+          {/* Muscle Label (5th from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '80%', left: '56%', width: '14%', height: '10%' }]}
+            onPress={() => handleBodyPartPress('muscle')}
+            activeOpacity={0.6}
+          />
+
+          {/* Sexual Health Label (6th from left) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '80%', left: '70%', width: '14%', height: '10%' }]}
+            onPress={() => handleBodyPartPress('sexual')}
+            activeOpacity={0.6}
+          />
+
+          {/* Nootropics/Brain Label (7th - far right) */}
+          <TouchableOpacity
+            style={[styles.touchArea, { top: '80%', left: '84%', width: '16%', height: '10%' }]}
+            onPress={() => handleBodyPartPress('brain')}
+            activeOpacity={0.6}
+          />
+        </View>
+      </View>
+
+      {/* Bottom Section: Category Card + Auth Buttons */}
+      <View style={styles.bottomSection}>
+        {/* Inline Category Card - shown when a body part is tapped */}
+        {selectedBodyPart && CATEGORY_CARD_INFO[selectedBodyPart] && (
+          <TouchableOpacity
+            style={styles.categoryCard}
+            onPress={() => handleViewProducts(selectedBodyPart)}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.categoryCardIcon, { backgroundColor: CATEGORY_CARD_INFO[selectedBodyPart].color + '22' }]}>
+              {React.createElement(CATEGORY_CARD_INFO[selectedBodyPart].Icon, { size: 28, color: CATEGORY_CARD_INFO[selectedBodyPart].color })}
+            </View>
+            <View style={styles.categoryCardText}>
+              <Text style={[styles.categoryCardTitle, { color: CATEGORY_CARD_INFO[selectedBodyPart].color }]}>
+                {CATEGORY_CARD_INFO[selectedBodyPart].name}
+              </Text>
+              <Text style={styles.categoryCardDesc}>
+                {CATEGORY_CARD_INFO[selectedBodyPart].description}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#888" />
+          </TouchableOpacity>
+        )}
+
+        {/* Sign Up / Log In Buttons */}
+        {!isAuthenticated && (
+          <View style={styles.authButtonsContainer}>
+            <TouchableOpacity
+              style={styles.signUpButton}
+              onPress={() => {
+                const rootNav = navigation.getParent()?.getParent() || navigation;
+                rootNav.navigate('Login', { mode: 'signup' });
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.signUpButtonText}>Sign up</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.logInButton}
+              onPress={() => {
+                const rootNav = navigation.getParent()?.getParent() || navigation;
+                rootNav.navigate('Login', { mode: 'login' });
+              }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.logInButtonText}>Log in</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 10,
+  },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight + 10 : 50,
+    paddingBottom: 12,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 3,
+    textTransform: 'uppercase',
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 5,
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 13,
+    color: '#888',
+  },
+  bottomSection: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'android' ? 10 : 25,
+  },
+  categoryCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(30, 30, 30, 0.92)',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  categoryCardIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  categoryCardText: {
+    flex: 1,
+  },
+  categoryCardTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
+  categoryCardDesc: {
+    fontSize: 12,
+    color: '#999',
+  },
+  authButtonsContainer: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  signUpButton: {
+    backgroundColor: '#4A90D9',
+    borderRadius: 25,
+    paddingVertical: 14,
+    alignItems: 'center',
+    width: '100%',
+    marginBottom: 8,
+  },
+  signUpButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  logInButton: {
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  logInButtonText: {
+    color: '#AAAAAA',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  bodyContainer: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1,
+  },
+  imageWrapper: {
+    flex: 1,
+    position: 'relative',
+    zIndex: 10,
+    backgroundColor: 'transparent',
+  },
+  bodyImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  touchArea: {
+    position: 'absolute',
+    zIndex: 20,
+    // Debug mode - uncomment to see touch areas
+    // backgroundColor: 'rgba(26, 188, 156, 0.25)',
+    // borderWidth: 1,
+    // borderColor: '#1abc9c',
+    // borderRadius: 8,
+  },
+  glowSpot: {
+    position: 'absolute',
+    zIndex: 25,
+    width: 28,
+    height: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  glowSpotOuter: {
+    position: 'absolute',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  glowSpotCore: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  categoryLabelsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    alignItems: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    marginBottom: 20,
+  },
+  categoryLabel: {
+    alignItems: 'center',
+    width: 72,
+  },
+  categoryCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    marginBottom: 6,
+  },
+  categoryLabelText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: 14,
+  },
+  // Animation overlay styles
+  animationOverlay: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 15,
+    pointerEvents: 'none',
+  },
+  brainGlow: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 50,
+    backgroundColor: '#E74C3C',
+    shadowColor: '#E74C3C',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  hairGlow: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 20,
+    backgroundColor: '#8B4513',
+    shadowColor: '#D4A574',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  stomachGlow: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 40,
+    backgroundColor: '#27AE60',
+    shadowColor: '#27AE60',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  muscleGlow: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 30,
+    backgroundColor: '#9B59B6',
+    shadowColor: '#9B59B6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 18,
+    elevation: 10,
+  },
+  heartGlowEffect: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 30,
+    backgroundColor: '#E74C3C',
+    shadowColor: '#E74C3C',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  skinGlowOuter: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 215, 0, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#FFD700',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 30,
+    elevation: 15,
+  },
+  skinGlowInner: {
+    width: '50%',
+    height: '50%',
+    borderRadius: 50,
+    backgroundColor: '#FFD700',
+    shadowColor: '#FFF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 15,
+  },
+  sexualGlowOuter: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 105, 180, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 25,
+    elevation: 15,
+  },
+  sexualGlowInner: {
+    width: '40%',
+    height: '60%',
+    borderRadius: 50,
+    backgroundColor: '#FF69B4',
+    shadowColor: '#FFF',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
+  },
+});
+
+export default HomeScreen;

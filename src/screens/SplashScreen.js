@@ -12,6 +12,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Video, ResizeMode } from 'expo-av';
 import Svg, { Path } from 'react-native-svg';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '../context/AuthContext';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -67,9 +69,16 @@ const SplashScreen = ({ navigation }) => {
     };
   }, []);
 
+  const { isAuthenticated } = useAuth();
+
   const handleContinue = () => {
-    // From the beaker splash, go directly to the main app (Home)
-    navigation.replace('MainApp');
+    if (isAuthenticated) {
+      // Returning user (already signed in) → go straight to body screen
+      navigation.replace('MainApp');
+    } else {
+      // Not signed in → must sign in first
+      navigation.replace('Login');
+    }
   };
 
   return (
@@ -95,7 +104,7 @@ const SplashScreen = ({ navigation }) => {
           />
           
           <Video
-            source={require('../../beaker.mp4')}
+            source={require('../../assets/beaker.mp4')}
             style={[styles.beakerVideo, { opacity: videoLoaded ? 1 : 0 }]}
             resizeMode={ResizeMode.CONTAIN}
             shouldPlay

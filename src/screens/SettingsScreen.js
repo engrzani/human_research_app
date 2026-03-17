@@ -8,10 +8,13 @@ import {
   ScrollView,
   StatusBar,
   Alert,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
+import { CommonActions } from '@react-navigation/native';
 
 // Extracted outside SettingsScreen to avoid remounting on every render
 const SettingItem = ({ label, subtitle, onPress, showChevron = true }) => (
@@ -41,6 +44,7 @@ const SettingItemWithValue = ({ label, value }) => (
 
 const SettingsScreen = ({ navigation }) => {
   const { clearCart } = useCart();
+  const { user, signOut, isAuthenticated } = useAuth();
 
   const handleClearResearchList = () => {
     Alert.alert(
@@ -73,7 +77,19 @@ const SettingsScreen = ({ navigation }) => {
       'Are you sure you want to sign out?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Sign Out', style: 'destructive', onPress: () => {} },
+        { 
+          text: 'Sign Out', 
+          style: 'destructive', 
+          onPress: async () => {
+            await signOut();
+            navigation.dispatch(
+              CommonActions.reset({
+                index: 0,
+                routes: [{ name: 'Splash' }],
+              })
+            );
+          },
+        },
       ]
     );
   };
@@ -104,14 +120,16 @@ const SettingsScreen = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>ACCOUNT</Text>
           <SettingItem 
-            label="example@email.com" 
+            label={user?.email || 'Not signed in'} 
             subtitle="Age verified: 21+"
             onPress={() => {}}
           />
-          <SettingItem 
-            label="Sign Out" 
-            onPress={handleSignOut}
-          />
+          {isAuthenticated && (
+            <SettingItem 
+              label="Sign Out" 
+              onPress={handleSignOut}
+            />
+          )}
         </View>
 
         {/* Research Controls */}
@@ -128,11 +146,11 @@ const SettingsScreen = ({ navigation }) => {
           <Text style={styles.sectionTitle}>SUPPORT</Text>
           <SettingItem 
             label="Contact Support" 
-            onPress={() => {}}
+            onPress={() => Linking.openURL('mailto:support@peptfied.org')}
           />
           <SettingItem 
             label="Report an Issue" 
-            onPress={() => {}}
+            onPress={() => Linking.openURL('mailto:support@peptfied.org?subject=Issue%20Report')}
           />
         </View>
 
@@ -140,7 +158,7 @@ const SettingsScreen = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>ABOUT</Text>
           <SettingItemWithValue label="App Version" value="1.0" />
-          <SettingItemWithValue label="Company Name" value="Example Inc." />
+          <SettingItemWithValue label="Company Name" value="28Health" />
         </View>
 
         <View style={styles.bottomSpacer} />

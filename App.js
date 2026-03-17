@@ -497,8 +497,8 @@ function MainTabs() {
         tabBarActiveTintColor: '#1abc9c',
         tabBarInactiveTintColor: '#666',
         tabBarStyle: {
-          height: Platform.OS === 'android' ? 70 : 65,
-          paddingBottom: Platform.OS === 'android' ? 12 : 10,
+          height: Platform.OS === 'android' ? 70 : 90,
+          paddingBottom: Platform.OS === 'android' ? 12 : 30,
           paddingTop: 8,
           backgroundColor: '#1a1a1a',
           borderTopWidth: 1,
@@ -544,48 +544,70 @@ function MainTabs() {
   );
 }
 
-export default function App() {
-  const [initialRoute, setInitialRoute] = useState(null);
+// Inner navigator that reacts to auth / disclaimer state
+function AppNavigator() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const [navState, setNavState] = useState({ route: null, key: 0 });
+  const wasAuthenticated = useRef(false);
 
   useEffect(() => {
-    const checkAppState = async () => {
+    if (authLoading) return;
+
+    // Detect sign-out: was authenticated, now isn't → send to Splash (→ Login)
+    if (wasAuthenticated.current && !isAuthenticated) {
+      wasAuthenticated.current = false;
+      setNavState(prev => ({ route: 'Splash', key: prev.key + 1 }));
+      return;
+    }
+
+    // Track auth state
+    wasAuthenticated.current = isAuthenticated;
+
+    // Only run flag checks on initial load (navState.route is null)
+    if (navState.route !== null) return;
+
+    const checkFlags = async () => {
       try {
-        // First check if user is authenticated
-        const cachedUser = await AsyncStorage.getItem('user');
-        if (cachedUser) {
-          // User is logged in, go straight to app
-          setInitialRoute('MainApp');
-          return;
+        // One-time reset: clear stale flags from old app versions
+        const migrated = await AsyncStorage.getItem('@peptify_v3_migrated');
+        if (!migrated) {
+          await AsyncStorage.multiRemove([
+            '@peptify_age_verified',
+            '@peptify_disclaimer_acknowledged',
+            '@peptify_terms_accepted',
+            '@peptify_v2_migrated',
+            'user',
+          ]);
+          await AsyncStorage.setItem('@peptify_v3_migrated', 'true');
         }
 
-        // User not authenticated, check onboarding progress
         const ageVerified = await AsyncStorage.getItem('@peptify_age_verified');
         if (!ageVerified) {
-          // Haven't done age gate yet - start from beginning
-          setInitialRoute('AgeGate');
+          setNavState(prev => ({ route: 'AgeGate', key: prev.key + 1 }));
           return;
         }
-
-        // Age verified, check if terms/privacy were accepted
+        const disclaimerDone = await AsyncStorage.getItem('@peptify_disclaimer_acknowledged');
+        if (!disclaimerDone) {
+          setNavState(prev => ({ route: 'ResearchDisclaimerOnboarding', key: prev.key + 1 }));
+          return;
+        }
         const termsAccepted = await AsyncStorage.getItem('@peptify_terms_accepted');
         if (!termsAccepted) {
-          // Age done but hasn't seen disclaimer & terms yet
-          setInitialRoute('ResearchDisclaimerOnboarding');
+          setNavState(prev => ({ route: 'TermsPrivacyOnboarding', key: prev.key + 1 }));
           return;
         }
-
-        // All onboarding done, go to login/signup
-        setInitialRoute('Login');
+        // Disclaimers done → always show beaker first
+        // Beaker screen will route to Login or MainApp based on auth state
+        setNavState(prev => ({ route: 'Splash', key: prev.key + 1 }));
       } catch (e) {
-        console.error('App state check error:', e);
-        setInitialRoute('AgeGate');
+        setNavState(prev => ({ route: 'AgeGate', key: prev.key + 1 }));
       }
     };
-    checkAppState();
-  }, []);
 
-  if (initialRoute === null) {
-    // Show loading while checking app state
+    checkFlags();
+  }, [authLoading, isAuthenticated]);
+
+  if (navState.route === null || authLoading) {
     return (
       <View style={{ flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#1abc9c" />
@@ -594,77 +616,38 @@ export default function App() {
   }
 
   return (
+    <NavigationContainer key={navState.key}>
+      <Stack.Navigator
+        initialRouteName={navState.route}
+        screenOptions={{
+          headerStyle: { backgroundColor: '#1a1a1a' },
+          headerTintColor: '#1abc9c',
+          headerTitleStyle: { fontWeight: 'bold', color: '#fff' },
+          gestureEnabled: true,
+        }}
+      >
+        {/* Onboarding Flow: AgeGate → Disclaimer → TermsPrivacy → Splash (beaker) → MainApp */}
+        <Stack.Screen name="AgeGate" component={AgeGateScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="ResearchDisclaimerOnboarding" component={MedicalDisclaimerScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="TermsPrivacyOnboarding" component={TermsPrivacyOnboardingScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Disclaimer" component={DisclaimerScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Onboarding" component={OnboardingScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Terms" component={TermsScreen} options={{ title: 'Terms & Conditions' }} />
+        <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: 'Privacy Policy' }} />
+        <Stack.Screen name="MainApp" component={MainTabs} options={{ headerShown: false }} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
     <SafeAreaProvider>
       <AuthProvider>
         <CartProvider>
-          <NavigationContainer>
-            <Stack.Navigator 
-              initialRouteName={initialRoute}
-              screenOptions={{
-                headerStyle: {
-                  backgroundColor: '#1a1a1a',
-                },
-                headerTintColor: '#1abc9c',
-                headerTitleStyle: {
-                  fontWeight: 'bold',
-                  color: '#fff',
-                },
-                gestureEnabled: true,
-              }}
-            >
-              {/* Onboarding Flow: AgeGate → Disclaimer → TermsPrivacy → Splash → Login */}
-              <Stack.Screen 
-                name="AgeGate" 
-                component={AgeGateScreen} 
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen 
-                name="ResearchDisclaimerOnboarding" 
-                component={MedicalDisclaimerScreen} 
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen 
-                name="TermsPrivacyOnboarding" 
-                component={TermsPrivacyOnboardingScreen} 
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen 
-                name="Splash" 
-                component={SplashScreen} 
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen 
-                name="Login" 
-                component={LoginScreen} 
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen 
-                name="Disclaimer" 
-                component={DisclaimerScreen} 
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen 
-                name="Onboarding" 
-                component={OnboardingScreen} 
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen 
-                name="Terms" 
-                component={TermsScreen} 
-                options={{ title: 'Terms & Conditions' }}
-              />
-              <Stack.Screen 
-                name="Privacy" 
-                component={PrivacyScreen} 
-                options={{ title: 'Privacy Policy' }}
-              />
-              <Stack.Screen 
-                name="MainApp" 
-                component={MainTabs} 
-                options={{ headerShown: false }}
-              />
-            </Stack.Navigator>
-          </NavigationContainer>
+          <AppNavigator />
         </CartProvider>
       </AuthProvider>
     </SafeAreaProvider>

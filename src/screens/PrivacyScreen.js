@@ -97,7 +97,7 @@ const PrivacyScreen = ({ navigation }) => {
 
         <Text style={styles.sectionTitle}>10. Contact</Text>
         <Text style={styles.paragraph}>
-          For questions regarding this Privacy Policy, contact:{'\n'}support@yourdomain.com
+          For questions regarding this Privacy Policy, contact:{'\n'}support@peptfied.org
         </Text>
 
         <View style={styles.bottomSpacer} />

@@ -83,3 +83,6 @@ human_research_app/
 
 1.0.0 - February 2026
 #$env:PATH = "c:\human_research_rork_app\node-v20.11.0-win-x64;" + $env:PATH; cd c:\human_research_rork_app; npx expo start
+
+#Open this link on your Android devices (or scan the QR code) to install the app:
+https://expo.dev/accounts/zeenatumer/projects/human-research-app/builds/acb75e4e-0fbd-4587-9a76-60436c852ac7

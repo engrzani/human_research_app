@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useCart } from '../context/CartContext';
 import BeakerIcon from '../components/BeakerIcon';
+import COMPOUND_REFERENCES from '../data/references';
 
 const ProductDetailScreen = ({ route, navigation }) => {
   const { product } = route.params;
@@ -296,6 +297,8 @@ const ProductDetailScreen = ({ route, navigation }) => {
             <Text style={styles.sectionText}>{product.researchDescription}</Text>
           ) : product.whatItIs ? (
             <Text style={styles.sectionText}>{product.whatItIs}</Text>
+          ) : product.description ? (
+            <Text style={styles.sectionText}>{product.description}</Text>
           ) : (
             <Text style={styles.sectionText}>
               {product.name} is a naturally occurring compound that has been studied in experimental models for its interaction with various biological pathways. Research has examined its role in cellular processes within laboratory settings.
@@ -342,6 +345,32 @@ const ProductDetailScreen = ({ route, navigation }) => {
             </>
           )}
         </Animated.View>
+
+        {/* Research References / Citations */}
+        {(() => {
+          const refs = COMPOUND_REFERENCES[product.name];
+          if (!refs || refs.length === 0) return null;
+          return (
+            <View style={styles.sectionContainer}>
+              <Text style={styles.sectionSubtitle}>Research References</Text>
+              {refs.map((ref, index) => (
+                <View key={index} style={styles.referenceItem}>
+                  <Text style={styles.referenceNumber}>[{index + 1}]</Text>
+                  <View style={styles.referenceContent}>
+                    <Text style={styles.referenceTitle}>{ref.title}</Text>
+                    <Text style={styles.referenceJournal}>
+                      {ref.journal} ({ref.year})
+                      {ref.pmid ? `  •  PMID: ${ref.pmid}` : ''}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+              <Text style={styles.referenceDisclaimer}>
+                References are provided for informational purposes only. This app does not endorse or recommend any treatments.
+              </Text>
+            </View>
+          );
+        })()}
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
@@ -475,6 +504,38 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 80,
+  },
+  referenceItem: {
+    flexDirection: 'row',
+    marginBottom: 12,
+  },
+  referenceNumber: {
+    fontSize: 12,
+    color: '#1abc9c',
+    fontWeight: '700',
+    marginRight: 8,
+    marginTop: 1,
+  },
+  referenceContent: {
+    flex: 1,
+  },
+  referenceTitle: {
+    fontSize: 13,
+    color: '#ccc',
+    lineHeight: 18,
+  },
+  referenceJournal: {
+    fontSize: 11,
+    color: '#888',
+    marginTop: 2,
+    fontStyle: 'italic',
+  },
+  referenceDisclaimer: {
+    fontSize: 11,
+    color: '#666',
+    marginTop: 12,
+    lineHeight: 16,
+    fontStyle: 'italic',
   },
   savedIndicator: {
     position: 'absolute',

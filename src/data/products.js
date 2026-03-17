@@ -444,8 +444,8 @@ export const PRODUCTS = [
 
   // ==================== HAIR ====================
   {
-    id: 'hair_pp405',
-    name: 'PP-405',
+    id: 'hair_jxl069',
+    name: 'JXL-069',
     category: 'hair',
     subcategory: 'hairGrowth',
     price: 129,
@@ -459,7 +459,7 @@ export const PRODUCTS = [
       { size: '50mg', price: 129 },
       { size: '100mg', price: 229 },
     ],
-    mechanism: ['Follicle stem cell activation', 'Wnt pathway modulation', 'Dermal papilla stimulation'],
+    mechanism: ['Follicle signaling modulation', 'Hair regeneration support', 'Long-term follicle activation'],
     researchContext: 'Research peptide targeting hair follicle regeneration pathways.',
   },
   {
