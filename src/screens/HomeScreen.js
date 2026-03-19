@@ -69,42 +69,7 @@ const HomeScreen = () => {
   const overlayOpacity = useRef(new Animated.Value(0)).current;
   // Body image crossfade for smooth transitions
   const bodyFadeAnim = useRef(new Animated.Value(1)).current;
-  // Selected label glow animation
-  const labelGlowAnim = useRef(new Animated.Value(0)).current;
 
-  // Label pop-hint animations (one per label)
-  const labelAnims = useRef(LABELS.map(() => new Animated.Value(1))).current;
-
-  // On mount: play a continuous staggered pulse on each label to hint interactivity
-  useEffect(() => {
-    const loopAnims = LABELS.map((_, i) => {
-      return Animated.loop(
-        Animated.sequence([
-          Animated.delay(i * 180),
-          Animated.timing(labelAnims[i], {
-            toValue: 1.15,
-            duration: 500,
-            easing: Easing.out(Easing.back(2)),
-            useNativeDriver: true,
-          }),
-          Animated.timing(labelAnims[i], {
-            toValue: 1,
-            duration: 500,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
-          }),
-          Animated.delay(2500),
-        ])
-      );
-    });
-    const timeout = setTimeout(() => {
-      loopAnims.forEach(a => a.start());
-    }, 600);
-    return () => {
-      clearTimeout(timeout);
-      loopAnims.forEach(a => a.stop());
-    };
-  }, []);
 
   // Animate overlay + body crossfade when a body part is selected
   useEffect(() => {
@@ -124,21 +89,8 @@ const HomeScreen = () => {
           easing: Easing.out(Easing.ease),
           useNativeDriver: true,
         }),
-        Animated.sequence([
-          Animated.timing(labelGlowAnim, {
-            toValue: 1,
-            duration: 200,
-            useNativeDriver: true,
-          }),
-          Animated.timing(labelGlowAnim, {
-            toValue: 0.6,
-            duration: 300,
-            useNativeDriver: true,
-          }),
-        ]),
+
       ]).start();
-    } else {
-      labelGlowAnim.setValue(0);
     }
   }, [selectedBodyPart]);
 
@@ -237,34 +189,18 @@ const HomeScreen = () => {
             resizeMode="stretch"
           />
           <View style={styles.labelTapOverlay}>
-            {LABELS.map((label, index) => {
-              const isSelected = selectedBodyPart === label.key;
+            {LABELS.map((label) => {
               return (
-                <Animated.View
+                <View
                   key={`label-${label.key}`}
-                  style={[
-                    styles.labelTapArea,
-                    { transform: [{ scale: isSelected ? 1.15 : labelAnims[index] }] },
-                  ]}
+                  style={styles.labelTapArea}
                 >
                   <TouchableOpacity
-                    style={[
-                      styles.labelTapButton,
-                      isSelected && styles.labelTapButtonSelected,
-                    ]}
+                    style={styles.labelTapButton}
                     onPress={() => handleLabelPress(label.key)}
                     activeOpacity={0.7}
-                  >
-                    {isSelected && (
-                      <Animated.View
-                        style={[
-                          styles.labelSelectedGlow,
-                          { opacity: labelGlowAnim },
-                        ]}
-                      />
-                    )}
-                  </TouchableOpacity>
-                </Animated.View>
+                  />
+                </View>
               );
             })}
           </View>
@@ -357,19 +293,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  labelTapButtonSelected: {
-    backgroundColor: 'rgba(26, 188, 156, 0.35)',
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: '#1abc9c',
-  },
-  labelSelectedGlow: {
-    position: 'absolute',
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(26, 188, 156, 0.15)',
-  },
+
 });
 
 export default HomeScreen;
